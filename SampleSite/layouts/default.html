@@ -1,14 +1,12 @@
 <!DOCTYPE html>
 <html>
 
-  { include head.html }
-  {{ site.name }}
-  {{ site.address }}
+  {{ site.layouts.head.content }}
 
   <body>
     <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
-    { include header.html }
+    {{ site.layouts.header.content }}
 
     <div class="page-content">
       <div class="wrapper">
@@ -16,7 +14,7 @@
       </div>
     </div>
 
-    { include footer.html }
+    {{ site.layouts.footer.content }}
 
   </body>
 

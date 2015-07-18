@@ -106,6 +106,8 @@ class MiniProcessor:
 		self.extractFor = re.compile(ur'%s\s*(?:for)\s+(\w+)\s+(?:in)\s+(\w+(?:\.\w+)*)\s*%s' % (regSafe(self.functionStart), regSafe(self.argumentSeparator)))
 		#self.extractVar = re.compile(ur'\{\{\s*(\w+\.)*\w+\s*\}\}')
 		self.extractVar = re.compile(ur'%s\s*(\w+\.)*\w+\s*%s' % (regSafe(self.variableStart), regSafe(self.variableEnd)))
+		self.currentDepth = 0
+		self.maxDepth = 16
 
 	# Make an object data available to the augmentation :
 	def addObject(self, objModel, name=''):
@@ -141,6 +143,7 @@ class MiniProcessor:
 		return (None, None, None)
 
 	def processIf(self, string, start, middle, end, matchObj):
+		print u'  (Processing test on %s)' % matchObj.group(2)
 		l = getVarFromPath(self.matchData, matchObj.group(2), True)
 		if (matchObj.group(1)=='if' and l!=None) or (matchObj.group(1)=='ifnot' and l==None) :	
 			return string[:start] + self.process(string[middle:end]) + string[(end+2):]
@@ -154,6 +157,7 @@ class MiniProcessor:
 		extract = string[middle:end]
 		if self.matchData.get(varname)!=None:
 			raise NameError(u'A variable with the name "%s" is already in use.' % varname)
+		print u'  (Processing for loop over %s)' % matchObj.group(2)
 		for var in l:
 			self.matchData[varname] = l[var]
 			result += self.process(extract)
@@ -171,6 +175,7 @@ class MiniProcessor:
 
 	# Function parsing the variables request :
 	def replaceValueFunction(self, matchobj):
+		print u'  (Processing variable %s)' % matchobj.group(0)
 		var = getVarFromPath(self.matchData, matchobj.group(0), not self.forceVariableReplace)
 		if var==None:
 			return matchobj.group(0)
@@ -181,6 +186,16 @@ class MiniProcessor:
 	#	- calling functions "{% funcion args %% body %}
 	#	- replacing variables "{{ topVar.middleVar.bottomVar }}" and applying code.
 	def process(self, string):
+		if self.currentDepth>self.maxDepth:
+			print u'[WARNING] Maximum recursion depth reached while processing string :\n%s...' % string[1:256]
+			return string
+		else:
+			self.currentDepth += 1
+		
+		if self.currentDepth==0:
+			print string
+			print matchData['content']
+
 		# Scan :
 		start = 0
 		(start, middle, end) = self.findBlock(string, start)
@@ -189,7 +204,10 @@ class MiniProcessor:
 			(start, middle, end) = self.findBlock(string, start)
 
 		# Replace remaining variables :
-		return self.extractVar.sub(self.replaceValueFunction, string)
+		string = self.extractVar.sub(self.replaceValueFunction, string)
+		# Finish :
+		self.currentDepth -= 1
+		return string
 
 # Layout :
 class Layout(ObjectModel):
@@ -286,11 +304,13 @@ class Site(ObjectModel):
 		self.checkParameter('rootDirectory')
 		self.checkParameter('categories')
 		# Load all the layouts :
+		print u'Loading the layouts : '
 		self['layouts'] = {}
 		layoutFilenames = getItemsList('%s/layouts/' % self['dirname'], True, False, False, '*.html')
 		for filename in layoutFilenames:
 			self['layouts'][getStrippedFilename(filename)] = Layout(self, filename)
 		# Load all the categories :
+		print u'Loading the categories : '
 		self['categoriesList'] = []
 		for category in self['categories']:
 			self['categoriesList'].append(category['category'])
@@ -336,6 +356,8 @@ class Site(ObjectModel):
 			directories = True
 		# Get the items :
 		filenames = getItemsList('%s/%s/' % (self['dirname'], category['category']), files, directories, True)
+		if not filenames:
+			print '[WARNING] Category %s (loading from %s/%s/) appears to be empty.' % (category['category'], self['dirname'], category['category'])
 		elements = {}
 		previous = None
 		for filename in filenames:

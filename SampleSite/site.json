@@ -1,15 +1,10 @@
 {
 	"site": "GrimoireSampleSite",
-	"rootDirectory": "",
-	"name": "GrimoireSample",
+	"rootDirectory": "/home/arkh/Code/Grimoire/SampleSite",
 	"categories":[
 	{
 		"category": "posts",
 		"reader": "postReader",
 		"directories": "false"
-	},
-	{
-		"category": "gallery",
-		"reader": "imageReader"
 	}]
 }
