@@ -1,0 +1,15 @@
+{
+	"site": "GrimoireSampleSite",
+	"rootDirectory": "",
+	"name": "GrimoireSample",
+	"categories":[
+	{
+		"category": "posts",
+		"reader": "postReader",
+		"directories": "false"
+	},
+	{
+		"category": "gallery",
+		"reader": "imageReader"
+	}]
+}

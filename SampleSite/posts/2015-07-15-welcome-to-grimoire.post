@@ -1,0 +1,44 @@
+{
+	"layout":	"post",
+	"title":	"Welcome to Jekyll!",
+	"date":		"2015-06-30 22:48:20",
+	"categories":	"jekyll update"
+}
+--------
+You’ll find this post in your `_posts` directory. Go ahead and edit it and re-build the site to see your changes. You can rebuild the site in many different ways, but the most common way is to run `jekyll serve`, which launches a web server and auto-regenerates your site when a file is updated.
+
+To add new posts, simply add a file in the `_posts` directory that follows the convention `YYYY-MM-DD-name-of-post.ext` and includes the necessary front matter. Take a look at the source for this post to get an idea about how it works.
+
+Jekyll also offers powerful support for code snippets:
+
+{% highlight ruby %}
+def print_hi(name)
+  puts "Hi, #{name}"
+end
+print_hi('Tom')
+#=> prints 'Hi, Tom' to STDOUT.
+{% endhighlight %}
+
+{% highlight cpp linenos %}
+#include <iostream>
+
+int someFunction(const int& x)
+{
+	return x+1;
+}
+
+void main(void)
+{
+	std::cout << "Hello World" << std::endl;
+	const int 	a = 0,
+			b = someFunction(a);
+	std::cout << "This will be a very long line of text to test the horizontal scrolling of code snippets. I would like to make it wrap in the end, just like a real editor. I am not sure if this possible though.
+	return 0;
+}
+{% endhighlight %}
+
+And this is some inline Latex math <span>$$a^2+b^2=c^2$$</span> and this is an equation :
+<div>$$\left|a-b\right|^2$$</div>
+
+Check out the [Jekyll docs][jekyll] for more info on how to get the most out of Jekyll. File all bugs/feature requests at [Jekyll’s GitHub repo][jekyll-gh]. If you have questions, you can ask them on [Jekyll’s dedicated Help repository][jekyll-help].
+
