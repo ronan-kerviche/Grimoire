@@ -106,7 +106,7 @@ class MiniProcessor:
 		self.extractFor = re.compile(ur'%s\s*(?:for)\s+(\w+)\s+(?:in)\s+(\w+(?:\.\w+)*)\s*%s' % (regSafe(self.functionStart), regSafe(self.argumentSeparator)))
 		#self.extractVar = re.compile(ur'\{\{\s*(\w+\.)*\w+\s*\}\}')
 		self.extractVar = re.compile(ur'%s\s*(\w+\.)*\w+\s*%s' % (regSafe(self.variableStart), regSafe(self.variableEnd)))
-		self.extractFunc = re.compile(ur'%s\s*(?:call)(?:\s+([^\s]+))*\s*%s'  % (regSafe(self.functionStart), regSafe(self.argumentSeparator)))	
+		self.extractFunc = re.compile(ur'%s\s*(?:call)\s+.+\s*%s'  % (regSafe(self.functionStart), regSafe(self.argumentSeparator)))	
 		self.currentDepth = 0
 		self.maxDepth = 16
 
@@ -170,12 +170,16 @@ class MiniProcessor:
 		return result + string[(end+2):]
 
 	def processFunc(self, string, start, middle, end, matchObj):
-		print matchObj.group()
-		print matchObj.lastindex
-		for k in range(0, 10):
-			print '%d -> %s' % (k, matchObj.group(k))
-		raise NameError('stop')
-	
+		call = string[(start+len(self.functionStart)):(middle-len(self.argumentSeparator))].split()
+		if len(call)<=1:
+			raise NameError(u'Missing arguments in function call : %s' % string[start:middle])
+		if globals().get(call[1])==None:
+			raise NameError(u'Unknown function to call : %s' % call[1])
+		else:
+			# Call the function and process back :
+			fun = globals()[call[1]]
+			return  string[:start] + self.process(fun(self, call[2:], string[middle:end])) + string[(end+2):]
+
 	def applyFunction(self, string, start, middle, end):
 		matchObj = self.extractIf.match(string, start, middle)
 		if matchObj!=None:
@@ -411,13 +415,22 @@ class Site(ObjectModel):
 			previous = filename
 		return elements
 
-# Main Function :
-def main(argv):
-	#print "Hello World!"
-	#for arg in sys.argv:
-	#	print arg
-	site = Site("SampleSite")
+def importModules(dirname):
+	sys.path.insert(0, dirname)
+	lst = getItemsList(dirname, True, False, '*.py')
+	for filename in lst:	
+		moduleName = path.splitext(path.basename(filename))[0]
+		if globals().get(moduleName)==None:
+			print u'Importing module %s ...' % moduleName
+			module = __import__(moduleName)
+			if getattr(module, 'apply')!=None:
+				globals()[moduleName] = getattr(module, 'apply')
 
-# Run main() :
+# main() :
 if __name__ == "__main__":
-	main(sys.argv)
+	#sys.path.insert(0, 'Modules')
+	#import modulePygment
+	#print globals()
+	#print dir(modulePygment)
+	importModules('Modules')
+	site = Site(sys.argv[1])	
