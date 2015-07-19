@@ -1,6 +1,6 @@
 {
 	"title":  "Welcome to Jekyll!",
-	"date":   "2015-06-30 22:48:20",
+	"date":   "Jun 30, 2015",
 	"topics": "jekyll update"
 }
 -----
@@ -10,15 +10,15 @@ To add new posts, simply add a file in the `_posts` directory that follows the c
 
 Jekyll also offers powerful support for code snippets:
 
-{ highlight ruby }
+{% call highlight ruby site.address test %%
 def print_hi(name)
   puts "Hi, #{name}"
 end
 print_hi('Tom')
 #=> prints 'Hi, Tom' to STDOUT.
-{ endhighlight }
+%}
 
-{ highlight cpp linenos }
+{% call highlight cpp linenos %%
 #include <iostream>
 
 int someFunction(const int& x)
@@ -34,7 +34,7 @@ void main(void)
 	std::cout << "This will be a very long line of text to test the horizontal scrolling of code snippets. I would like to make it wrap in the end, just like a real editor. I am not sure if this possible though.
 	return 0;
 }
-{ endhighlight }
+%}
 
 And this is some inline Latex math <span>$$a^2+b^2=c^2$$</span> and this is an equation :
 <div>$$\left|a-b\right|^2$$</div>

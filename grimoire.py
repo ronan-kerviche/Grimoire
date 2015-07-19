@@ -106,14 +106,19 @@ class MiniProcessor:
 		self.extractFor = re.compile(ur'%s\s*(?:for)\s+(\w+)\s+(?:in)\s+(\w+(?:\.\w+)*)\s*%s' % (regSafe(self.functionStart), regSafe(self.argumentSeparator)))
 		#self.extractVar = re.compile(ur'\{\{\s*(\w+\.)*\w+\s*\}\}')
 		self.extractVar = re.compile(ur'%s\s*(\w+\.)*\w+\s*%s' % (regSafe(self.variableStart), regSafe(self.variableEnd)))
+		self.extractFunc = re.compile(ur'%s\s*(?:call)(?:\s+([^\s]+))*\s*%s'  % (regSafe(self.functionStart), regSafe(self.argumentSeparator)))	
 		self.currentDepth = 0
 		self.maxDepth = 16
 
 	# Make an object data available to the augmentation :
-	def addObject(self, objModel, name=''):
-		if not name:
-			name = objModel.name
-		self.matchData[name] = objModel	
+	def addObject(self, objModel, name=None):
+		if name=='':
+			for var in objModel.data:
+				self.matchData[var] = objModel[var]
+		else:
+			if name==None:
+				name = objModel.name
+			self.matchData[name] = objModel	
 
 	def findBlock(self,string,start):
 		depth = -1
@@ -143,7 +148,7 @@ class MiniProcessor:
 		return (None, None, None)
 
 	def processIf(self, string, start, middle, end, matchObj):
-		print u'  (Processing test on %s)' % matchObj.group(2)
+		#print u'  (Processing test on %s)' % matchObj.group(2)
 		l = getVarFromPath(self.matchData, matchObj.group(2), True)
 		if (matchObj.group(1)=='if' and l!=None) or (matchObj.group(1)=='ifnot' and l==None) :	
 			return string[:start] + self.process(string[middle:end]) + string[(end+2):]
@@ -157,12 +162,19 @@ class MiniProcessor:
 		extract = string[middle:end]
 		if self.matchData.get(varname)!=None:
 			raise NameError(u'A variable with the name "%s" is already in use.' % varname)
-		print u'  (Processing for loop over %s)' % matchObj.group(2)
+		#print u'  (Processing for loop over %s)' % matchObj.group(2)
 		for var in l:
 			self.matchData[varname] = l[var]
 			result += self.process(extract)
 		self.matchData.pop(varname, None)
 		return result + string[(end+2):]
+
+	def processFunc(self, string, start, middle, end, matchObj):
+		print matchObj.group()
+		print matchObj.lastindex
+		for k in range(0, 10):
+			print '%d -> %s' % (k, matchObj.group(k))
+		raise NameError('stop')
 	
 	def applyFunction(self, string, start, middle, end):
 		matchObj = self.extractIf.match(string, start, middle)
@@ -171,11 +183,14 @@ class MiniProcessor:
 		matchObj = self.extractFor.search(string, start, middle)
 		if matchObj!=None:
 			return self.processFor(string, start, middle, end, matchObj)
+		matchObj = self.extractFunc.search(string, start, middle)
+		if matchObj!=None:
+			return self.processFunc(string, start, middle, end, matchObj)
 		raise NameError(u'Unknown function : %s' % string[start:middle])
 
 	# Function parsing the variables request :
 	def replaceValueFunction(self, matchobj):
-		print u'  (Processing variable %s)' % matchobj.group(0)
+		#print u'  (Processing variable %s)' % matchobj.group(0)
 		var = getVarFromPath(self.matchData, matchobj.group(0), not self.forceVariableReplace)
 		if var==None:
 			return matchobj.group(0)
@@ -235,6 +250,7 @@ class Layout(ObjectModel):
 			self['content'] = site['layouts'][key].generateContent(site, self['content'])
 			# Copy all the variables :
 			self.appendVariables(site['layouts'][key].data)
+		print u'Processing %s ...' % self['filename']
 		# Scan, if needed :
 		if self.get('foreach')!=None:
 			m = re.match(ur'\s*(\w+)\s+in\s+(\w+(?:.\w+)*)', self['foreach'])
@@ -245,6 +261,12 @@ class Layout(ObjectModel):
 			l = getVarFromPath({'site':site, 'layout':self}, listname)
 			for var in l:
 				self.pages.append( Page(l[var]['url'], l[var]['outputFilename'], self.generateContent(site, None, l[var], varname)) )
+		if self.get('generate')!=None:
+			g = self['generate'].split()
+			if g==None:
+				raise NameError(u'From %s, missing filename to be generated.' % self['filename'])
+			for filename in g:
+				 self.pages.append( Page('%s/%s' % (site['rootDirectory'], filename), '%s/site/%s' % (site['dirname'], filename), self.generateContent(site)) )
 
 		# Done :
 		self.processed = True
@@ -306,7 +328,7 @@ class Site(ObjectModel):
 		# Load all the layouts :
 		print u'Loading the layouts : '
 		self['layouts'] = {}
-		layoutFilenames = getItemsList('%s/layouts/' % self['dirname'], True, False, False, '*.html')
+		layoutFilenames = getItemsList('%s/layouts/' % self['dirname'], True, False, False)
 		for filename in layoutFilenames:
 			self['layouts'][getStrippedFilename(filename)] = Layout(self, filename)
 		# Load all the categories :
@@ -335,7 +357,7 @@ class Site(ObjectModel):
 			return True
 		else:
 			raise NameError(u'Missing parameter "%s" in %s/site.json.' % (name, self['dirname']))
-		
+	
 	def listElementsInCategory(self, category):
 		if category.get('category')==None:
 			raise NameError(u'Missing category name.')
