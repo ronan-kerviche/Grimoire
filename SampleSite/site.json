@@ -6,6 +6,11 @@
 		"category": "posts",
 		"reader": "postReader",
 		"directories": "false"
+	},
+	{
+		"category": "gallery",
+		"reader": "imageReader",
+		"tmp.directories": "false"
 	}],
 	"description": "A Sample Blog by Grimoire",
 	"title": "Sample Site",

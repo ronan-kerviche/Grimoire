@@ -1,0 +1,35 @@
+{
+	"foreach":"img in site.gallery"
+}
+-----
+{% if img.isfile %% {% call copyAndThumbImage {{img.filename}} 0.5 0.5 {{img.outputDirname}}/{{img.basename}} 256 256 {{img.outputDirname}}/thumb_{{img.basename}} %} %}
+
+{{ site.layouts.defaultPre.content}}
+
+<div class="post">
+{% if img.isfile %%
+     <center><img src="{{img.urlDirname}}/{{img.basename}}" style="max-height:570px;"></center> 
+     <table style="width:100%"><tr>
+     <td><span class="imagePrev">{% if img.next.url %% <a href="{{img.next.url}}">&lt;</a>%}{% ifnot img.next.url %% &#183; %}</span></td>
+     <td width="95%" align="center">
+     <div class="imageDescription">
+     <span class="exifTag">Filename :</span> {{img.basename}} &nbsp;&nbsp;
+     <span class="exifTag">Date :</span> {{img.EXIF.DateTimeOriginal}} &nbsp;&nbsp;
+     <span class="exifTag">Camera :</span> {{img.MakerNote.ModelID}} &nbsp;&nbsp;
+     <span class="exifTag">Lens :</span> {{img.EXIF.LensModel}} &nbsp;&nbsp;<br>
+     <span class="exifTag">Focal Length :</span> {{img.EXIF.FocalLength}} mm &nbsp;&nbsp;
+     <span class="exifTag">Aperture :</span> F/{% call calc %% {{img.EXIF.FNumber}} %} &nbsp;&nbsp;
+     <span class="exifTag">Exposure :</span> {{img.EXIF.ExposureTime}} &nbsp;&nbsp;
+     </div>
+     </td>
+     <td><span class="imageNext">{% if img.previous.url %% <a href="{{img.previous.url}}">&gt;</a>%}{% ifnot img.previous.url %% &#183; %}</span></td>
+     </tr></table>
+%}
+{% ifnot img.isfile %%
+{% foreach file in img.files %%
+     <a href="{{file.url}}"><img src="{{file.urlDirname}}/thumb_{{file.basename}}"></a><br>
+%}
+%}
+</div>
+
+{{ site.layouts.defaultPost.content}}

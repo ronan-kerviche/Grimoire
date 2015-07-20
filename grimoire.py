@@ -9,6 +9,12 @@ import codecs
 def getStrippedFilename(filename):
 	return path.splitext(path.basename(filename))[0]	
 
+def prepareFileWrite(filename):
+	directory = path.dirname(filename)
+	if not path.exists(directory):
+		makedirs(directory)
+	return filename
+
 def parseJSONHeader(string, sourceName):
 	parts = re.split(ur'(-){5,}', string)
 	if len(parts)==1:
@@ -35,7 +41,7 @@ def getItemsList(rootDirname, includeFiles, includeDirectories, recursive=False,
     				matches.append(path.join(root, filename))
 		if includeDirectories:
 			for dirname in fnmatch.filter(dirnames, directoryFilter):
-				matches.append(path.join(root, dirname))
+				matches.append(path.join(root, dirname).strip('/'))
 	return matches
 
 def getVarFromPath(rootVar, pathString, silent=False):
@@ -93,6 +99,7 @@ class ObjectModel(object):
 class MiniProcessor:
 	def __init__(self):
 		self.forceVariableReplace = False
+		self.applyFunctions = True
 		self.matchData = {}
 		self.functionStart = '{%'
 		self.argumentSeparator = '%%'
@@ -103,10 +110,10 @@ class MiniProcessor:
 		#self.extractIf = re.compile(ur'\{%\s*(if|ifnot)\s+(\w+(?:\.\w+)*)\s*%%')	
 		self.extractIf = re.compile(ur'%s\s*(if|ifnot)\s+(\w+(?:\.\w+)*)\s*%s' % (regSafe(self.functionStart), regSafe(self.argumentSeparator)))
 		#self.extractFor = re.compile(ur'\{%\s*(?:for)\s+(\w+)\s+(?:in)\s+(\w+(?:\.\w+)*)\s*%%')
-		self.extractFor = re.compile(ur'%s\s*(?:for)\s+(\w+)\s+(?:in)\s+(\w+(?:\.\w+)*)\s*%s' % (regSafe(self.functionStart), regSafe(self.argumentSeparator)))
+		self.extractForeach = re.compile(ur'%s\s*(?:foreach)\s+(\w+)\s+(?:in)\s+(\w+(?:\.\w+)*)\s*%s' % (regSafe(self.functionStart), regSafe(self.argumentSeparator)))
 		#self.extractVar = re.compile(ur'\{\{\s*(\w+\.)*\w+\s*\}\}')
 		self.extractVar = re.compile(ur'%s\s*(\w+\.)*\w+\s*%s' % (regSafe(self.variableStart), regSafe(self.variableEnd)))
-		self.extractFunc = re.compile(ur'%s\s*(?:call)\s+.+\s*%s'  % (regSafe(self.functionStart), regSafe(self.argumentSeparator)))	
+		self.extractFunc = re.compile(ur'%s\s*(?:call)\s+.+\s*(?:%s|%s)'  % (regSafe(self.functionStart), regSafe(self.argumentSeparator), regSafe(self.functionEnd)))	
 		self.currentDepth = 0
 		self.maxDepth = 16
 
@@ -136,7 +143,7 @@ class MiniProcessor:
 					elif s==self.functionEnd: # Block end
 						if depth==0:
 							if middle<0:
-								middle = end
+								middle = end+len(self.argumentSeparator)
 							return (start, middle, end)
 						else:
 							depth -= 1
@@ -170,7 +177,7 @@ class MiniProcessor:
 		return result + string[(end+2):]
 
 	def processFunc(self, string, start, middle, end, matchObj):
-		call = string[(start+len(self.functionStart)):(middle-len(self.argumentSeparator))].split()
+		call = self.process(string[(start+len(self.functionStart)):(middle-len(self.argumentSeparator))]).split()
 		if len(call)<=1:
 			raise NameError(u'Missing arguments in function call : %s' % string[start:middle])
 		if globals().get(call[1])==None:
@@ -184,13 +191,13 @@ class MiniProcessor:
 		matchObj = self.extractIf.match(string, start, middle)
 		if matchObj!=None:
 			return self.processIf(string, start, middle, end, matchObj)
-		matchObj = self.extractFor.search(string, start, middle)
+		matchObj = self.extractForeach.search(string, start, middle)
 		if matchObj!=None:
 			return self.processFor(string, start, middle, end, matchObj)
 		matchObj = self.extractFunc.search(string, start, middle)
 		if matchObj!=None:
 			return self.processFunc(string, start, middle, end, matchObj)
-		raise NameError(u'Unknown function : %s' % string[start:middle])
+		raise NameError(u'Unknown operation : %s' % string[start:middle])
 
 	# Function parsing the variables request :
 	def replaceValueFunction(self, matchobj):
@@ -209,18 +216,14 @@ class MiniProcessor:
 			print u'[WARNING] Maximum recursion depth reached while processing string :\n%s...' % string[1:256]
 			return string
 		else:
-			self.currentDepth += 1
-		
-		if self.currentDepth==0:
-			print string
-			print matchData['content']
-
+			self.currentDepth += 1	
 		# Scan :
-		start = 0
-		(start, middle, end) = self.findBlock(string, start)
-		while start!=None:
-			string = self.applyFunction(string, start, middle, end)
+		if self.applyFunctions:
+			start = 0
 			(start, middle, end) = self.findBlock(string, start)
+			while start!=None:
+				string = self.applyFunction(string, start, middle, end)
+				(start, middle, end) = self.findBlock(string, start)
 
 		# Replace remaining variables :
 		string = self.extractVar.sub(self.replaceValueFunction, string)
@@ -242,18 +245,7 @@ class Layout(ObjectModel):
 		
 	def process(self, site):
 		if self.processed:
-			return True
-		if self.get('layout')!=None:
-			if site['layouts'].get(self['layout'])==None:
-				raise NameError(u'From %s, the layout %s was not referenced.' % (self['filename'], self['layout']))
-			elif not site['layouts'][self['layout']].processed:
-				return False
-			# Remove the layout dependency :
-			key = self['layout']
-			self.pop('layout', None)
-			self['content'] = site['layouts'][key].generateContent(site, self['content'])
-			# Copy all the variables :
-			self.appendVariables(site['layouts'][key].data)
+			return True	
 		print u'Processing %s ...' % self['filename']
 		# Scan, if needed :
 		if self.get('foreach')!=None:
@@ -276,8 +268,9 @@ class Layout(ObjectModel):
 		self.processed = True
 		return True
 
-	def generateContent(self, site, content=None, obj={}, name=''):
+	def generateContent(self, site, content=None, obj={}, name='', applyFunctions=True):
 		processor = MiniProcessor();
+		processor.applyFunctions = applyFunctions
 		processor.addObject(self)
 		processor.addObject(site)
 		if obj:
@@ -297,22 +290,19 @@ class Page:
 
 	def write(self):
 		print 'Writing to %s ...' % self.outputFilename
-		directory = path.dirname(self.outputFilename)
-		if not path.exists(directory):
-			makedirs(directory)
-		dataFile = codecs.open(self.outputFilename, 'w', encoding='utf-8')
+		#directory = path.dirname(self.outputFilename)
+		#if not path.exists(directory):
+		#	makedirs(directory)
+		dataFile = codecs.open(prepareFileWrite(self.outputFilename), 'w', encoding='utf-8')
 		dataFile.write(self.content)
 		dataFile.close()
 
 # Post :
-def postReader(filename):
-	fileData = codecs.open(filename, 'r', encoding='utf-8')
-	content = fileData.read()
-	fileData.close()
-	return parseJSONHeader(content, 'Post %s' % filename)
-
-def imageReader(filename):
-	return ({}, filename)
+#def postReader(filename):
+#	fileData = codecs.open(filename, 'r', encoding='utf-8')
+#	content = fileData.read()
+#	fileData.close()
+#	return parseJSONHeader(content, 'Post %s' % filename)
 
 # Site :
 class Site(ObjectModel):
@@ -339,6 +329,7 @@ class Site(ObjectModel):
 		print u'Loading the categories : '
 		self['categoriesList'] = []
 		for category in self['categories']:
+			print '  %s ...' % category['category']
 			self['categoriesList'].append(category['category'])
 			self[category['category']] = self.listElementsInCategory(category)
 		# Process them :
@@ -382,37 +373,66 @@ class Site(ObjectModel):
 			directories = True
 		# Get the items :
 		filenames = getItemsList('%s/%s/' % (self['dirname'], category['category']), files, directories, True)
+		# Append the missing root, if needed :
+		if directories:
+			filenames.append('%s/%s' % (self['dirname'], category['category']))
 		if not filenames:
 			print '[WARNING] Category %s (loading from %s/%s/) appears to be empty.' % (category['category'], self['dirname'], category['category'])
 		elements = {}
-		previous = None
+		previousFilename = None
 		for filename in filenames:
 			# Set basic element data (previous and next element, directory, patent, etc.)
 			elements[filename] = {}
 			elements[filename]['filename'] = filename
 			elements[filename]['localFilename'] = path.relpath(filename, self['dirname'])
 			elements[filename]['dirname'] = path.dirname(filename)
-			elements[filename]['next'] = None
-			if previous==None:
-				elements[filename]['previous'] = None
-			elif previous!=None and elements[filename]['dirname']==elements[previous]['dirname']:
-				elements[filename]['previous'] = previous
-				elements[previous]['next'] = filename
+			elements[filename]['basename'] = path.basename(filename)
+			elements[filename]['nextFilename'] = None
+			if previousFilename==None:
+				elements[filename]['previousFilename'] = None
+			elif previousFilename!=None and elements[filename]['dirname']==elements[previousFilename]['dirname']:
+				elements[filename]['previousFilename'] = previousFilename
+				elements[previousFilename]['nextFilename'] = filename
+			elements[filename]['outputDirname'] = '%s/site/%s' % (self['dirname'], path.dirname(elements[filename]['localFilename']))
 			elements[filename]['outputFilename'] = '%s/site/%s/%s.html' % (self['dirname'], path.dirname(elements[filename]['localFilename']), getStrippedFilename(filename))
+			elements[filename]['urlDirname'] = '%s/%s' % (self['rootDirectory'], path.dirname(elements[filename]['localFilename']))
 			elements[filename]['url'] = '%s/%s/%s.html' % (self['rootDirectory'], path.dirname(elements[filename]['localFilename']), getStrippedFilename(filename))
 			# Also copy some information from the category :
 			for var in category:
 				elements[filename][var] = category[var]
 			# Read the data with the requested module :	
 			if path.isfile(filename):
-				elements[filename]['isfile'] = True;
+				elements[filename]['isfile'] = True
 				(data, content) = reader(filename)
 				for var in data:
 					elements[filename][var] = data[var]
 				elements[filename]['content'] = content
 			else:
-				elements[filename]['isfile'] = False;
-			previous = filename
+				elements[filename]['isfile'] = None
+				# Change the outputFilename to target the index.html :
+				elements[filename]['outputFilename'] = '%s/site/%s/%s/index.html' % (self['dirname'], path.dirname(elements[filename]['localFilename']), getStrippedFilename(filename))
+				elements[filename]['url'] = '%s/%s/%s/index.html' % (self['rootDirectory'], path.dirname(elements[filename]['localFilename']), getStrippedFilename(filename))
+			# Remember this as the previous of next :
+			previousFilename = filename
+		# Build the doubly-linked chain :
+		for name in elements:
+			if elements[name].get('previousFilename')!=None:
+				if elements.get(elements[name]['previousFilename'])!=None:
+					elements[name]['previous'] = elements[elements[name]['previousFilename']]
+				else:
+					print u'[WARNING] Could not link previous element %s to current element %s' % (elements[name]['previousFilename'], name)
+			if elements[name].get('nextFilename')!=None:
+				if elements.get(elements[name]['nextFilename'])!=None:
+					elements[name]['next'] = elements[elements[name]['nextFilename']]
+				else:
+					print u'[WARNING] Could not link next element %s to current element %s' % (elements[name]['nextFilename'], name)
+		# File all sub-files :
+		for name in elements:
+			if not elements[name]['isfile']:
+				elements[name]['files'] = {}
+				for filename in elements:
+					if elements[name]['filename'] in elements[filename]['filename']:
+						elements[name]['files'][filename] = elements[filename]
 		return elements
 
 def importModules(dirname):
@@ -423,14 +443,12 @@ def importModules(dirname):
 		if globals().get(moduleName)==None:
 			print u'Importing module %s ...' % moduleName
 			module = __import__(moduleName)
-			if getattr(module, 'apply')!=None:
+			if getattr(module, 'apply', None)!=None:
 				globals()[moduleName] = getattr(module, 'apply')
+			else:
+				print u'[WARNING] Module %s does not have a apply function.' % moduleName
 
 # main() :
 if __name__ == "__main__":
-	#sys.path.insert(0, 'Modules')
-	#import modulePygment
-	#print globals()
-	#print dir(modulePygment)
 	importModules('Modules')
 	site = Site(sys.argv[1])	
