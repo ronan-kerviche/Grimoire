@@ -1,0 +1,18 @@
+{
+	"site": "GrimoireSampleSite",
+	"rootDirectory": "/home/arkh/Code/Grimoire/SampleSite2/site",
+	"categories":[
+	{
+		"category": "Posts",
+		"reader": "postReader",
+		"directories": "false"
+	},
+	{
+		"category": "Gallery",
+		"reader": "imageReader",
+		"tmp.directories": "false"
+	}],
+	"description": "A Sample Blog by Grimoire",
+	"title": "Sample Site",
+	"githubUsername": "ronan-kerviche"
+}

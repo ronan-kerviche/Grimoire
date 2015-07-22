@@ -1,0 +1,157 @@
+{
+	"generate": "main.css",
+
+	"white": "#FFF",
+	"gray": "#333",
+	"darkGray": "#222",
+	"darkerGray": "#111",
+	"lightGray": "#666",
+	"lighterGray": "#AAA",
+	
+	"headerHeight": "2.5em",
+	"footerHeight": "2em"
+}
+-----
+/* Generic */
+body, h1, h2, h3, h4, h5, h6, p, blockquote, pre, hr, dl, dd, ol, ul, figure
+{
+	margin: 0;
+	padding: 0;
+}
+
+body
+{
+	font-family: Helvetica, Arial, sans-serif;
+	font-size: 16px;
+	color: {{layout.white}};
+	background-color: #24242A;
+}
+
+html, body
+{
+	height: 100%;
+}
+
+a
+{
+	color: {{layout.white}}
+	text-decoration: underline;
+}
+
+a:visited
+{
+	color:{{layout.lighterGray}}
+}
+
+/* Header And NavBar */
+header
+{
+	background-color: {{layout.darkerGray}};
+}
+
+#navBar
+{
+	width:100%;
+	height: {{layout.headerHeight}};
+}
+
+#navBar ul li
+{
+	display:block;
+	float:left;
+	color:{{layout.white}};
+	padding: 0 1em 0 1em;
+	border-right: 2px solid {{layout.darkGray}};
+	list-style: none;
+	line-height: {{layout.headerHeight}};
+	text-align: center;
+	cursor: pointer;
+}
+
+#navBar .headerTitle
+{
+	font-weight: bold;
+}
+
+#navBar .headerTitle a
+{
+	text-decoration: none;
+}
+
+#navBar .headerTitle a:visited
+{
+	color: {{layout.white}};
+}
+
+#navBar .category:hover
+{
+	background-color: {{layout.darkGray}};
+}
+
+/* Main page content */
+.page-wrap
+{
+	min-height: 100%;
+	margin-bottom: -{{layout.footerHeight}}; 
+}
+
+.page-wrap:after
+{
+	content: "";
+	display: block;
+}
+
+/* Footer */
+footer, .pageWrap:after
+{
+	height: {{layout.footerHeight}};
+}
+
+footer
+{
+	position: absolute;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	background-color: {{layout.darkerGray}};
+}
+
+#footerLeft
+{
+	float: left;
+	padding-left: 1em;
+}
+
+#footerLeft ul li
+{
+	display: block;
+	float: left;
+	padding-right: 0.75em;
+	list-style: outside none none;
+	line-height: {{layout.footerHeight}};
+	text-align: center;
+}
+
+#footerLeft a
+{
+	text-decoration: none;
+	color: {{layout.white}}
+}
+
+#footerLeft a:visited
+{
+	text-decoration: none;
+	color: {{layout.lighterGray}}
+}
+
+#footerRight
+{
+	float:right;
+	padding-right: 1em;
+	line-height: {{layout.footerHeight}};
+	text-align: center;
+}
+
+/* Code Highlight */
+{% if site.layouts.highlight %% {{site.layouts.highlight.content}} %}
+

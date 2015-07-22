@@ -387,11 +387,13 @@ class Site(ObjectModel):
 			self['layouts'][getStrippedFilename(filename)] = Layout(self, filename)
 		# Load all the categories :
 		print u'Loading the categories : '
-		self['categoriesList'] = []
+		categories = self['categories']
+		self['categories'] = {}
+		for category in categories:
+			self['categories'][category['category']] = category
 		for category in self['categories']:
-			print '  %s ...' % category['category']
-			self['categoriesList'].append(category['category'])
-			self[category['category']] = self.listElementsInCategory(category)
+			print '  %s ...' % category
+			self['categories'][category]['data'] = self.listElementsInCategory(self['categories'][category])	
 		# Process them :
 		layoutsToProcess = self['layouts'].keys()
 		while layoutsToProcess:

@@ -5,39 +5,41 @@
 /**
  * Reset some basic elements
  */
-body, h1, h2, h3, h4, h5, h6,
+/*body, h1, h2, h3, h4, h5, h6,
 p, blockquote, pre, hr,
 dl, dd, ol, ul, figure {
   margin: 0;
-  padding: 0; }
+  padding: 0; }*/
 
 /**
  * Basic styling
  */
-body {
-  font-family: Helvetica, Arial, sans-serif;
-  font-size: 16px;
-  line-height: 1.5;
-  font-weight: 300;
-  color: #FFF;
-  background-color: #333;
-  -webkit-text-size-adjust: 100%; }
+body
+{
+	font-family: Helvetica, Arial, sans-serif;
+	font-size: 16px;
+	line-height: 1.5;
+	font-weight: 300;
+	color: #FFF;
+	background-color: #333;
+	-webkit-text-size-adjust: 100%;
+}
 
-/**
- * Set `margin-bottom` to maintain vertical rhythm
- */
+/* Add some space */
 h1, h2, h3, h4, h5, h6,
 p, blockquote, pre,
 ul, ol, dl, figure,
-.highlight {
-  margin-bottom: 5px; }
+.highlight
+{
+	margin-bottom: 0.35em;
+}
 
 /**
  * Images
  */
-img {
+/*img {
   max-width: 100%;
-  vertical-align: middle; }
+  vertical-align: middle; }*/
 
 /**
  * Figures
