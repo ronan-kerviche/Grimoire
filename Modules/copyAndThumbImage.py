@@ -8,14 +8,17 @@ def apply(processor, args, string):
 	# Load the image :
 	img = Image.open(args[0], 'r')
 	# Try to read the EXIF :
-	exif = img._getexif()
-	if exif:
-		orientationKey = 274 # cf ExifTags
-		if orientationKey in exif:
-        		orientation = exif[orientationKey]
-        	rotateValues = {3: 180, 6: 270, 8: 90}
-        	if orientation in rotateValues:
-            		img = img.rotate(rotateValues[orientation])
+	try:
+		exif = img._getexif()
+		if exif:
+			orientationKey = 274 # cf ExifTags
+			if orientationKey in exif:
+        			orientation = exif[orientationKey]
+        		rotateValues = {3: 180, 6: 270, 8: 90}
+        		if orientation in rotateValues:
+            			img = img.rotate(rotateValues[orientation])
+	except:
+		pass
 	# Parse the arguments :
 	sizeImg = [float(args[1]), float(args[2])]
 	if sizeImg[0]<=2.0:

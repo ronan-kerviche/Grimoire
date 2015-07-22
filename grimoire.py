@@ -4,6 +4,7 @@ from os import path, walk, makedirs
 import re
 import fnmatch
 import codecs
+import bisect
 
 # Global tools :
 def getStrippedFilename(filename):
@@ -30,39 +31,108 @@ def parseJSONFile(filename):
 	dataFile.close()
 	return (data, content)
 
+def getItemBefore(lst, x):
+	o = 1 if x in lst else 0
+	i = bisect.bisect_right(lst, x)
+	if i-1-o>=0:
+        	return lst[i-1-o]
+	else:
+		return None
+
+def getItemAfter(lst, x):
+	o = 0 if x in lst else 1
+	i = bisect.bisect_left(lst, x)
+	if i+1-o<len(lst):
+		return lst[i+1-o]
+	else:
+		return None
+	
 def getItemsList(rootDirname, includeFiles, includeDirectories, recursive=False, fileFilter='*', directoryFilter='*'):
-	matches = []
+	matches = {}
+	# Also include the root directory, if needed :
+	if includeDirectories:
+		for name in fnmatch.filter([rootDirname], directoryFilter):
+			name = name.strip('/')
+			matches[name] = {}
+			matches[name]['firstFilename'] = None
+			matches[name]['firstDirname'] = None
+			matches[name]['firstName'] = None
+			matches[name]['previousFilename'] = None
+			matches[name]['previousDirname'] = None
+			matches[name]['previousName'] = None
+			matches[name]['nextFilename'] = None
+			matches[name]['nextDirname'] = None
+			matches[name]['nextName'] = None
+			matches[name]['lastFilename'] = None
+			matches[name]['lastDirname'] = None
+			matches[name]['lastName'] = None
+			matches[name]['subFilenames'] = []
+			matches[name]['subDirnames'] = []
+			matches[name]['subNames'] = []
 	for root, dirnames, filenames in walk(rootDirname):
 		if not recursive:
 			# Remove futures from recursion (in-place) :
 			del dirnames[:]
+		sRoot = root.strip('/')	
+		# Filter and sort :
+		selectedFiles = []
+		selectedDirectories = []
 		if includeFiles:
-  			for filename in fnmatch.filter(filenames, fileFilter):
-    				matches.append(path.join(root, filename))
+			for filename in fnmatch.filter(filenames, fileFilter):
+				selectedFiles.append(path.join(root, filename))
 		if includeDirectories:
 			for dirname in fnmatch.filter(dirnames, directoryFilter):
-				matches.append(path.join(root, dirname).strip('/'))
+				selectedDirectories.append(path.join(root, dirname).strip('/'))
+		selected = selectedFiles + selectedDirectories
+		selectedFiles.sort()
+		selectedDirectories.sort()
+		selected.sort()
+		# Save results with extra information :
+		for name in selected:
+			matches[name] = {}
+			matches[name]['firstFilename'] = selectedFiles[0] if selectedFiles else None
+			matches[name]['firstDirname'] = selectedDirectories[0] if selectedDirectories else None
+			matches[name]['firstName'] = selected[0] if selected else None
+			matches[name]['previousFilename'] = getItemBefore(selectedFiles, name)
+			matches[name]['previousDirname'] = getItemBefore(selectedDirectories, name)
+			matches[name]['previousName'] = getItemBefore(selected, name)
+			matches[name]['nextFilename'] = getItemAfter(selectedFiles, name)
+			matches[name]['nextDirname'] = getItemAfter(selectedDirectories, name)
+			matches[name]['nextName'] = getItemAfter(selected, name)
+			matches[name]['lastFilename'] = selectedFiles[-1] if selectedFiles else None
+			matches[name]['lastDirname'] = selectedDirectories[-1] if selectedDirectories else None
+			matches[name]['lastName'] = selected[-1] if selected else None
+			matches[name]['subFilenames'] = []
+			matches[name]['subDirnames'] = []
+			matches[name]['subNames'] = []
+		if matches.get(sRoot):
+			matches[sRoot]['subFilenames'] = selectedFiles
+			matches[sRoot]['subDirnames'] = selectedDirectories
+			matches[sRoot]['subNames'] = selected
 	return matches
 
 def getVarFromPath(rootVar, pathString, silent=False):
 	l = re.findall(ur'\w+', pathString)
 	currentData = rootVar
 	currentName = ''
-	for v in l:
-		if currentData.get(v)==None:
-			if not silent:
-				raise NameError('Variable "%s" does not exist in "%s".' % (v, currentName))
+	try:
+		for v in l:
+			if currentData.get(v)==None:
+				if not silent:
+					raise NameError('Variable "%s" does not exist in "%s".' % (v, currentName))
+				else:
+					print u'[WARNING] could not find variable "%s" in "%s".' % (v, currentName)
+					return None
 			else:
-				print u'[WARNING] could not find variable "%s" in "%s".' % (v, currentName)
-				return None
-		else:
-			currentData = currentData[v]
-		if not currentName:
-			currentName = v
-		else:
-			currentName = '%s.%s' % (currentName, v)
+				currentData = currentData[v]
+			if not currentName:
+				currentName = v
+			else:
+				currentName = '%s.%s' % (currentName, v)
+	except AttributeError:
+		print u'Exception caught while capturing variable "%s"' % currentName
+		raise 
 	return currentData
-
 
 # Object model :
 class ObjectModel(object):
@@ -206,7 +276,7 @@ class MiniProcessor:
 		if var==None:
 			return matchobj.group(0)
 		else:
-			return self.process(var)
+			return self.process(unicode(var))
 
 	# Processing string by : 
 	#	- calling functions "{% funcion args %% body %}
@@ -290,19 +360,9 @@ class Page:
 
 	def write(self):
 		print 'Writing to %s ...' % self.outputFilename
-		#directory = path.dirname(self.outputFilename)
-		#if not path.exists(directory):
-		#	makedirs(directory)
 		dataFile = codecs.open(prepareFileWrite(self.outputFilename), 'w', encoding='utf-8')
 		dataFile.write(self.content)
 		dataFile.close()
-
-# Post :
-#def postReader(filename):
-#	fileData = codecs.open(filename, 'r', encoding='utf-8')
-#	content = fileData.read()
-#	fileData.close()
-#	return parseJSONHeader(content, 'Post %s' % filename)
 
 # Site :
 class Site(ObjectModel):
@@ -373,66 +433,62 @@ class Site(ObjectModel):
 			directories = True
 		# Get the items :
 		filenames = getItemsList('%s/%s/' % (self['dirname'], category['category']), files, directories, True)
-		# Append the missing root, if needed :
-		if directories:
-			filenames.append('%s/%s' % (self['dirname'], category['category']))
 		if not filenames:
 			print '[WARNING] Category %s (loading from %s/%s/) appears to be empty.' % (category['category'], self['dirname'], category['category'])
 		elements = {}
 		previousFilename = None
-		for filename in filenames:
-			# Set basic element data (previous and next element, directory, patent, etc.)
+		for filename in filenames :
 			elements[filename] = {}
+			# Just the name :
+			elements[filename]['name'] = getStrippedFilename(filename)
+			# File test :
+			elements[filename]['isFile'] = True if path.isfile(filename) else None
+			# Basic filename data :
 			elements[filename]['filename'] = filename
-			elements[filename]['localFilename'] = path.relpath(filename, self['dirname'])
-			elements[filename]['dirname'] = path.dirname(filename)
 			elements[filename]['basename'] = path.basename(filename)
-			elements[filename]['nextFilename'] = None
-			if previousFilename==None:
-				elements[filename]['previousFilename'] = None
-			elif previousFilename!=None and elements[filename]['dirname']==elements[previousFilename]['dirname']:
-				elements[filename]['previousFilename'] = previousFilename
-				elements[previousFilename]['nextFilename'] = filename
-			elements[filename]['outputDirname'] = '%s/site/%s' % (self['dirname'], path.dirname(elements[filename]['localFilename']))
-			elements[filename]['outputFilename'] = '%s/site/%s/%s.html' % (self['dirname'], path.dirname(elements[filename]['localFilename']), getStrippedFilename(filename))
-			elements[filename]['urlDirname'] = '%s/%s' % (self['rootDirectory'], path.dirname(elements[filename]['localFilename']))
-			elements[filename]['url'] = '%s/%s/%s.html' % (self['rootDirectory'], path.dirname(elements[filename]['localFilename']), getStrippedFilename(filename))
-			# Also copy some information from the category :
-			for var in category:
-				elements[filename][var] = category[var]
-			# Read the data with the requested module :	
+			elements[filename]['dirname'] = path.dirname(filename).strip('/') if elements[filename]['isFile'] else path.dirname(filename + '/').strip('/')
+			# Basic local filename data (stripped from the path to the site :
+			elements[filename]['localFilename'] = path.relpath(filename, self['dirname'])
+			elements[filename]['localDirname'] = path.relpath(elements[filename]['dirname'], self['dirname']).strip('/')
+			# Output directory :
+			elements[filename]['outputDirname'] = ('%s/site/%s' % (self['dirname'], elements[filename]['localDirname'])).strip('/')
+			elements[filename]['urlDirname'] = '%s/%s' % (self['rootDirectory'], elements[filename]['localDirname'])
 			if path.isfile(filename):
-				elements[filename]['isfile'] = True
+				elements[filename]['outputFilename'] = '%s/%s.html' % (elements[filename]['outputDirname'], elements[filename]['name'])
+				elements[filename]['url'] = '%s/%s.html' % (elements[filename]['urlDirname'], elements[filename]['name'])
 				(data, content) = reader(filename)
 				for var in data:
 					elements[filename][var] = data[var]
 				elements[filename]['content'] = content
 			else:
-				elements[filename]['isfile'] = None
-				# Change the outputFilename to target the index.html :
-				elements[filename]['outputFilename'] = '%s/site/%s/%s/index.html' % (self['dirname'], path.dirname(elements[filename]['localFilename']), getStrippedFilename(filename))
-				elements[filename]['url'] = '%s/%s/%s/index.html' % (self['rootDirectory'], path.dirname(elements[filename]['localFilename']), getStrippedFilename(filename))
-			# Remember this as the previous of next :
-			previousFilename = filename
-		# Build the doubly-linked chain :
-		for name in elements:
-			if elements[name].get('previousFilename')!=None:
-				if elements.get(elements[name]['previousFilename'])!=None:
-					elements[name]['previous'] = elements[elements[name]['previousFilename']]
-				else:
-					print u'[WARNING] Could not link previous element %s to current element %s' % (elements[name]['previousFilename'], name)
-			if elements[name].get('nextFilename')!=None:
-				if elements.get(elements[name]['nextFilename'])!=None:
-					elements[name]['next'] = elements[elements[name]['nextFilename']]
-				else:
-					print u'[WARNING] Could not link next element %s to current element %s' % (elements[name]['nextFilename'], name)
-		# File all sub-files :
-		for name in elements:
-			if not elements[name]['isfile']:
-				elements[name]['files'] = {}
-				for filename in elements:
-					if elements[name]['filename'] in elements[filename]['filename']:
-						elements[name]['files'][filename] = elements[filename]
+				elements[filename]['outputFilename'] = '%s/index.html' % (elements[filename]['outputDirname'])
+				elements[filename]['url'] = '%s/index.html' % (elements[filename]['urlDirname'])
+			# Copy the other data :
+			for var in filenames[filename]:
+				elements[filename][var] = filenames[filename][var]
+		# Make the chains :
+		for filename in elements:
+			def chain(name, elName):
+				elements[filename][elName] = elements[elements[filename][name]] if elements[filename][name]!=None else None
+			chain('firstFilename', 'firstFile')
+			chain('firstDirname', 'firstDirectory')
+			chain('firstName', 'first')
+			chain('previousFilename', 'previousFile')
+			chain('previousDirname', 'previousDirectory')
+			chain('previousName', 'previous')
+			chain('nextFilename', 'nextFile')
+			chain('nextDirname', 'nextDirectory')
+			chain('nextName', 'next')
+			chain('lastFilename', 'lastFile')
+			chain('lastDirname', 'lastDirectory')
+			chain('lastName', 'last')
+			def chainList(name, elName):
+				elements[filename][elName] = {}
+				for v in elements[filename][name]:
+					elements[filename][elName][v] = elements[v]
+			chainList('subFilenames', 'subFiles')
+			chainList('subDirnames', 'subDirectories')
+			chainList('subNames', 'sub')
 		return elements
 
 def importModules(dirname):
