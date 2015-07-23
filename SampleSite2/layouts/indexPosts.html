@@ -1,0 +1,16 @@
+{
+	"generate": "Posts/index.html",
+	"addHeader": "True",
+	"addFooter": "True"
+}
+-----
+{{ site.layouts.mainPre.content }}
+
+	List of the posts :<br>
+	<ul>
+	{% foreach post in site.categories.Posts.data %% 
+	<li>{{post.title}}</li>
+	%}
+	<ul>
+
+{{ site.layouts.mainPost.content }}

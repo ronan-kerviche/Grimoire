@@ -2,18 +2,18 @@
 pre, code
 {
 	border: 1px solid {{layout.lightGray}};
-	border-radius: 8px;
+	border-radius: 1em;
 	background-color: {{layout.darkerGray}};
 }
 
 code
 {
-	padding: 1px 5px;
+	padding: 0.5em;
 }
 
 pre
 {
-	padding: 1px 4px;
+	padding: 0.5em;
 	overflow-x: auto;
 	word-wrap: normal;
 }
@@ -30,8 +30,8 @@ pre > code
 {
 	display: block;
 	color: {{layout.white}};
-	background: {{layout.gray}};
-	margin: 0.5em;
+	/*background: {{layout.gray}};*/
+	margin: 0.5em 0 0.5em 0;
 	font-size: 14px;
 }
 .highlight .c

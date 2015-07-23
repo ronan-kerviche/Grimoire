@@ -9,7 +9,8 @@
 	"lighterGray": "#AAA",
 	
 	"headerHeight": "2.5em",
-	"footerHeight": "2em"
+	"footerHeight": "2em",
+	"mainSideMargin" : "2em"
 }
 -----
 /* Generic */
@@ -44,7 +45,7 @@ a:visited
 }
 
 /* Header And NavBar */
-header
+#header
 {
 	background-color: {{layout.darkerGray}};
 }
@@ -70,12 +71,14 @@ header
 
 #navBar .headerTitle
 {
-	font-weight: bold;
+	font-weight: bold;	
+	margin-left: {{layout.mainSideMargin}}
 }
 
 #navBar .headerTitle a
 {
 	text-decoration: none;
+	color: {{layout.white}};
 }
 
 #navBar .headerTitle a:visited
@@ -88,17 +91,30 @@ header
 	background-color: {{layout.darkGray}};
 }
 
-/* Main page content */
-.page-wrap
+#navBar .category a
+{
+	text-decoration: none;
+	color: {{layout.white}};
+}
+
+#navBar .category a:visited
+{
+	color: {{layout.white}};
+}
+
+/* Main content, for the footer to work correctly */
+#content
 {
 	min-height: 100%;
 	margin-bottom: -{{layout.footerHeight}}; 
+	padding-bottom: {{layout.footerHeight}};
+	box-sizing: border-box;
 }
 
-.page-wrap:after
+/* Page Content */
+#pageContent
 {
-	content: "";
-	display: block;
+	margin: 0.5em 4em 0.5em 4em;
 }
 
 /* Footer */
@@ -109,17 +125,13 @@ footer, .pageWrap:after
 
 footer
 {
-	position: absolute;
-	right: 0;
-	bottom: 0;
-	left: 0;
 	background-color: {{layout.darkerGray}};
 }
 
 #footerLeft
 {
 	float: left;
-	padding-left: 1em;
+	margin-left: {{layout.mainSideMargin}};
 }
 
 #footerLeft ul li
@@ -147,7 +159,7 @@ footer
 #footerRight
 {
 	float:right;
-	padding-right: 1em;
+	margin-right: {{layout.mainSideMargin}};
 	line-height: {{layout.footerHeight}};
 	text-align: center;
 }

@@ -1,35 +1,7 @@
-{
-	"generate":"index.html"
-}
------
-<!DOCTYPE html>
-<html>
-<head>
-	<meta charset="utf-8">
-	<title>TestPage</title>
-	<link rel="stylesheet" href="{{site.rootDirectory}}/main.css">
-	<link rel="canonical" href="{{site.rootDirectory}}/index.html">
-</head>
-<body>	
-	<div id="content">
-	<div id="header"> <!-- The header must be inside the content id for the footer to work correctly. -->
-	<div id="navBar">
-	<ul>
-		<li class="headerTitle"><a href="{{site.rootDirectory}}">{{site.title}}</a></li>
-		{% foreach category in site.categories %% <li class="category">{{category.category}} &gt;</li> %}
-	</ul>
-	</div> <!-- navBar -->
-	</div> <!-- header -->
-
-	<div id="pageContent">	
-	List of the posts :<br>
-	{% foreach post in site.categories.Posts.data %% 
-	{{post.title}} <br>
-	{{post.content}}
-	%}
 	</div> <!-- pageContent -->
 	</div> <!-- content -->
 
+	{% if layout.addFooter %% 
 	<footer>
 	<div id="footerLeft">
 	<ul>
@@ -59,5 +31,6 @@
 	{% if site.description %% {{site.description}} %}
 	</div>
 	</footer>
+	%}
 </body>
 </html>

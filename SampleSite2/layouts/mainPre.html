@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>TestPage</title>
+	<link rel="stylesheet" href="{{site.rootDirectory}}/main.css">
+	<link rel="canonical" href="{{site.rootDirectory}}/index.html">
+</head>
+<body>	
+	<div id="content">
+	{% if layout.addHeader %%
+	<div id="header"> <!-- The header must be inside the content id for the footer to work correctly. -->
+	<div id="navBar">
+	<ul>
+		<li class="headerTitle"><a href="{{site.rootDirectory}}/index.html">{{site.title}}</a></li>
+		{% foreach category in site.categories %% <li class="category"><a href="{{site.rootDirectory}}/{{category.category}}/index.html">{{category.category}} &gt;</a></li> %}
+	</ul>
+	</div> <!-- navBar -->
+	</div> <!-- header -->
+	%}
+	
+	<div id="pageContent">
+	<!-- The page content will start here... -->
