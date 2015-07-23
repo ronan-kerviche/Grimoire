@@ -5,12 +5,14 @@
 	{
 		"category": "Posts",
 		"reader": "postReader",
+		"files": "true",
 		"directories": "false"
 	},
 	{
 		"category": "Gallery",
 		"reader": "imageReader",
-		"tmp.directories": "false"
+		"files": "true",
+		"directories": "true"
 	}],
 	"description": "A Sample Blog by Grimoire",
 	"title": "Sample Site",

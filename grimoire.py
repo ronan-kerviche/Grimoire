@@ -452,6 +452,10 @@ class Site(ObjectModel):
 			# Basic local filename data (stripped from the path to the site :
 			elements[filename]['localFilename'] = path.relpath(filename, self['dirname'])
 			elements[filename]['localDirname'] = path.relpath(elements[filename]['dirname'], self['dirname']).strip('/')
+			elements[filename]['directoryName'] = path.basename(elements[filename]['localDirname'])
+			# Basic information about the parent :
+			elements[filename]['parentDirname'] = path.dirname(elements[filename]['dirname']).strip('/')
+			elements[filename]['localParentDirname'] = path.dirname(elements[filename]['localDirname']).strip('/')
 			# Output directory :
 			elements[filename]['outputDirname'] = ('%s/site/%s' % (self['dirname'], elements[filename]['localDirname'])).strip('/')
 			elements[filename]['urlDirname'] = '%s/%s' % (self['rootDirectory'], elements[filename]['localDirname'])
@@ -471,7 +475,7 @@ class Site(ObjectModel):
 		# Make the chains :
 		for filename in elements:
 			def chain(name, elName):
-				elements[filename][elName] = elements[elements[filename][name]] if elements[filename][name]!=None else None
+				elements[filename][elName] = elements[elements[filename][name]] if elements[filename].get(name)!=None and elements.get(elements[filename][name])!=None else None
 			chain('firstFilename', 'firstFile')
 			chain('firstDirname', 'firstDirectory')
 			chain('firstName', 'first')
@@ -484,6 +488,7 @@ class Site(ObjectModel):
 			chain('lastFilename', 'lastFile')
 			chain('lastDirname', 'lastDirectory')
 			chain('lastName', 'last')
+			chain('parentDirname', 'parent')
 			def chainList(name, elName):
 				elements[filename][elName] = {}
 				for v in elements[filename][name]:
