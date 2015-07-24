@@ -1,6 +1,7 @@
 {
 	"generate": "mainStyleSheet.css",
 
+	"fontSizePixels": "16",
 	"white": "#FFF",
 	"gray": "#333",
 	"darkGray": "#222",
@@ -24,7 +25,7 @@ body, h1, h2, h3, h4, h5, h6, p, blockquote, pre, hr, dl, dd, ol, ul, figure
 body
 {
 	font-family: Helvetica, Arial, sans-serif;
-	font-size: 16px;
+	font-size: {{layout.fontSizePixels}}px;
 	color: {{layout.white}};
 	background-color: {{layout.backgroundColor}};
 }
@@ -186,6 +187,9 @@ footer
 
 /* Code Highlight */
 {% if site.layouts.highlight %% {{site.layouts.highlight.content}} %}
+
+/* Post elements */
+{% if site.layouts.postsStyleSheet %% {{site.layouts.postsStyleSheet.content}} %}
 
 /* Gallery elements */
 {% if site.layouts.galleryStyleSheet %% {{site.layouts.galleryStyleSheet.content}} %}

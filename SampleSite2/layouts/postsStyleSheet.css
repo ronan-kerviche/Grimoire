@@ -1,0 +1,91 @@
+{
+
+}
+-----
+#postsList
+{ }
+
+#postsList ul li
+{
+	list-style: none;
+}
+
+#postsList a
+{
+	color: {{layout.white}};
+}
+
+#postsList a:visited
+{
+	color: {{layout.lighterGray}}
+}
+
+.postDate
+{
+	color: {{layout.lighterGray}}
+}
+
+#postsList .postDate
+{
+	color: {{layout.lighterGray}}
+}
+
+#postsList .separator
+{
+	margin: 0 1em 0 1em;
+}
+
+.postTitle
+{
+	color: {{layout.white}};
+	font-size: 2em;
+	font-weight: bold;
+	margin-right: 1em;
+}
+
+#postsList .postTitle
+{
+	font-size: 1em;
+	font-weight: normal;
+	margin: none;
+}
+
+.postRuler
+{
+	background-color: {{layout.white}};
+	height: 1px;
+	border: none;
+}
+
+#footerPostNav
+{
+	width: 100%;
+	height: 1.5em;
+}
+
+#nextPost
+{
+	float: left;
+}
+
+#previousPost
+{
+	float: right;
+}
+
+/* Styling the post components : */
+#postContent
+{
+	margin-bottom: 1em;
+}
+
+#postContent p
+{
+	text-indent: 2em;
+}
+
+#postContent ul
+{
+	margin-left: 4em;
+}
+

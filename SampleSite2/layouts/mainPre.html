@@ -5,6 +5,12 @@
 	<title>TestPage</title>
 	<link rel="stylesheet" href="{{site.rootDirectory}}/mainStyleSheet.css">
 	<!-- TO BE RESET <link rel="canonical" href="{{site.rootDirectory}}/index.html"> -->
+	
+	{% if layout.useMathJAX %%
+	<script type="text/x-mathjax-config">
+	MathJax.Hub.Config({tex2jax: { inlineMath: [['$','$'], ['\\(','\\)']]} });</script>
+	<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+	%}
 </head>
 <body>	
 	{% if layout.addFooter %%

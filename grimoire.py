@@ -112,7 +112,9 @@ def getItemsList(rootDirname, includeFiles, includeDirectories, recursive=False,
 	return matches
 
 def getVarFromPath(rootVar, pathString, silent=False):
-	l = re.findall(ur'\w+', pathString)
+	l = re.findall(ur'(?:(\w+)|"(\w[\w\s\-\.\\/]*)")', pathString)
+	l = [item for tmp in l for item in tmp]
+	l = filter(None, l)
 	currentData = rootVar
 	currentName = ''
 	try:
@@ -181,9 +183,10 @@ class MiniProcessor:
 		self.extractIf = re.compile(ur'%s\s*(if|ifnot)\s+(\w+(?:\.\w+)*)\s*%s' % (regSafe(self.functionStart), regSafe(self.argumentSeparator)))
 		#self.extractFor = re.compile(ur'\{%\s*(?:for)\s+(\w+)\s+(?:in)\s+(\w+(?:\.\w+)*)\s*%%')
 		self.extractForeach = re.compile(ur'%s\s*(?:foreach)\s+(\w+)\s+(?:in)\s+(\w+(?:\.\w+)*)\s*%s' % (regSafe(self.functionStart), regSafe(self.argumentSeparator)))
-		#self.extractVar = re.compile(ur'\{\{\s*(\w+\.)*\w+\s*\}\}')
-		self.extractVar = re.compile(ur'%s\s*(\w+\.)*\w+\s*%s' % (regSafe(self.variableStart), regSafe(self.variableEnd)))
-		self.extractFunc = re.compile(ur'%s\s*(?:call)\s+.+\s*(?:%s|%s)'  % (regSafe(self.functionStart), regSafe(self.argumentSeparator), regSafe(self.functionEnd)))	
+		self.extractFunc = re.compile(ur'%s\s*(?:call)\s+.+\s*(?:%s|%s)'  % (regSafe(self.functionStart), regSafe(self.argumentSeparator), regSafe(self.functionEnd)))		
+		#self.extractVar = re.compile(ur'\{\{\s*(\w+\.)*\w+\s*\}\}')	
+		#self.extractVar = re.compile(ur'%s\s*(\w+\.)*\w+\s*%s' % (regSafe(self.variableStart), regSafe(self.variableEnd)))	
+		self.extractVar = re.compile(ur'%s\s*\w[\w\s\-\."\\/]*\s*%s' % (regSafe(self.variableStart), regSafe(self.variableEnd)))
 		self.currentDepth = 0
 		self.maxDepth = 16
 
@@ -240,7 +243,8 @@ class MiniProcessor:
 		if self.matchData.get(varname)!=None:
 			raise NameError(u'A variable with the name "%s" is already in use.' % varname)
 		#print u'  (Processing for loop over %s)' % matchObj.group(2)
-		for var in l:
+		#for var in l:
+		for var in sorted(l.keys()):
 			self.matchData[varname] = l[var]
 			result += self.process(extract)
 		self.matchData.pop(varname, None)

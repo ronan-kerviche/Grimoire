@@ -6,11 +6,25 @@
 -----
 {{ site.layouts.mainPre.content }}
 
-	List of the posts :<br>
+	<h2>Posts :</h2>
+	<div id="postsList">
 	<ul>
 	{% foreach post in site.categories.Posts.data %% 
-	<li>{{post.title}}</li>
+		<li>
+		<span class="postDate">
+		{% if post.date %% {{post.date}} %}
+		{% ifnot post.date %% <i>Unknown</i> %}
+		</span>
+		<span class="separator">&#47;&#47;</span>	
+		<span class="postTitle">
+		<a href="{{post.url}}">
+		{% if post.title %% {{post.title}} %}
+		{% ifnot post.title %% <i>Untitled</i> %}
+		</a>
+		</span>
+		</li>
 	%}
 	<ul>
+	</div>
 
 {{ site.layouts.mainPost.content }}

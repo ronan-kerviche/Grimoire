@@ -1,0 +1,45 @@
+{
+	"title":  "Grimoire Manual",
+	"date":   "Jun 31, 2015",
+	"topics": "grimoire manual"	
+}
+-----
+	<p>Grimoire is a minuscule static site generator written in Python. It focuses on generating content from simple data to be integrated in layouts. The root directory of a site should contain a <code>site.json</code> descriptor file and a <code>layouts/</code> directory containing all of the layouts to be used. Layouts can be any type of text files, including but not limited to HTML, CSS or SVG. The site descriptor file gives global variable and site categories to be loaded. It ressemble the following example :</p>
+
+{% call pygmentize json %%
+{
+	"site": "My Blog",
+	"rootDirectory": "blog/",
+	"categories":[
+	{
+		"category": "Posts",
+		"reader": "postReader",
+		"files": "true",
+		"directories": "false"
+	},
+	{
+		"category": "Gallery",
+		"reader": "imageReader",
+		"files": "true",
+		"directories": "true"
+	}],
+	"description": "My Blog, built by Grimoire",
+	"title": "My Blog",
+	"githubUsername": "myUsername",
+	"someOtherVariable": "someValue"
+}
+%}
+
+<ul>
+	<li><code>site</code> : Code name of the site.</li>
+	<li><code>rootDirectory</code> : Root directory of the site.</li>
+	<li><code>description</code> : Description of the site.</li>
+	<li><code>title</code> : Title of the site.</li>
+	<li><code>categories</code> : List of the categories in the site (an array).</li>
+	<li><code>category</code> : Category name and directory name from which the resource will be loaded.</li>
+	<li><code>reader</code> : Name of the function to be used to read each resource file. Directories will not be read.</li>
+	<li><code>files</code> : List the files in the category (true or false). The listing is recursive.</li>
+	<li><code>directories</code> : List the directories in the category (true or false). The listing is recursive.</li>
+</ul>
+
+	<p>Grimoire will start by listing all the files and directories (if enabled) in the categories (here <code>Posts/</code> and <code>Gallery/</code>). For each file found it will attempt to read it with the specified eader functions. Readers are located in the <code>Modules/</code> directory. Each contains a python function <code>def apply(filename):</code> which returns a tupple made of two elements, the first is a dictionnary of the data (key and value pairs) the other is the content of the resource. Both can be left empty if needed.</p>

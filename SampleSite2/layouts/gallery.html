@@ -10,31 +10,28 @@
 
 {{ site.layouts.mainPre.content }}
 
-	{% ifnot item.isFile %%
-	<!-- Files -->
-	<h3>Directories</h3>
-	<div class="directoryBlocksWrap">
+	{% ifnot item.isFile %%	
+	<div id="imageBlocksWrap">
+		<!-- Directories -->
 		{%if item.parent %%
 		<div class="imageBox">
-		<div class="innerImageBox">
-			<a href="{{item.parent.url}}">
+		<a href="{{item.parent.url}}">
+		<div class="innerBackBox">
 			Back
-			</a>
 		</div>
+		</a>
 		</div>
 		%}
 		{% foreach subItem in item.subDirectories %%
 		<div class="imageBox">
-		<div class="innerImageBox">
-			<a href="{{subItem.url}}">
+		<a href="{{subItem.url}}">
+		<div class="innerDirectoryBox">
 			{{subItem.name}}
-			</a>
 		</div>
+		</a>
 		</div>
 		%}
-	</div>
-	<h3>Images</h3>
-	<div id="imageBlocksWrap">	
+		<!-- Images -->
 		{% foreach subItem in item.subFiles %%
 		<div class="imageBox">
 		<div class="innerImageBox">
@@ -44,16 +41,7 @@
 		</div>
 		</div>
 		%}
-	</div>
-	<!--
-	{% foreach subItem in item.subFiles %%
-	<ul>
-	{% if subItem.isFile %% 
-		<li><a href="{{subItem.url}}"><img src="{{subItem.urlDirname}}/thumb_{{subItem.basename}}"></a></li>
-	%}
-	</ul>
-	%}
-	-->
+	</div>	
 	%}
 	{% if item.isFile %%	
 	<!-- Image -->
@@ -105,6 +93,13 @@
 			<span class="exifTag">ISO :</span>
 			{% if item.EXIF.ISOSpeedRatings %% <span class="exifValue">{{item.EXIF.ISOSpeedRatings}}</span> %}{% ifnot item.EXIF.ISOSpeedRatings %% <span class="exifUnknown">{{layout.unknownText}}</span> %}
 		</span>
+		{% if item.EXIF.UserComment %% 
+		<br>
+		<span class="exifField">
+			<span class="exifTag">Comment :</span>
+			<span class="exifValue">{{item.EXIF.UserComment}}</span>
+		</span>
+		%}
 		</li>
 		{% if item.nextFile %%
 		<li class="nextImage"><a href="{{item.nextFile.url}}">&gt;</a></li>

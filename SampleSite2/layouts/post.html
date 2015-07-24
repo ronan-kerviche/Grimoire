@@ -1,0 +1,30 @@
+{
+	"foreach": "post in site.categories.Posts.data",
+	"addHeader": "True",
+	"addFooter": "True",
+	"useMathJAX": "True"
+}
+-----
+{{ site.layouts.mainPre.content }}
+
+	<span class="postTitle">{{post.title}}</span>
+	<span class="postDate">{{post.date}}</span>
+	<hr class="postRuler">
+	<div id="postContent">
+	{{post.content}}
+	</div>
+	<hr class="postRuler">
+	<div id="footerPostNav">
+	{% if post.next %%	
+	<span id="nextPost">
+	Next : <a href="{{post.next.url}}">{% if post.next.title %% {{post.next.title}} %}{% ifnot post.next.title %% Untitled %}</a>
+	</span>
+	%}
+	{% if post.previous %%	
+	<span id="previousPost">
+	Previous : <a href="{{post.previous.url}}">{% if post.previous.title %% {{post.previous.title}} %}{% ifnot post.previous.title %% Untitled %}</a>
+	</span>
+	%}
+	</div>
+
+{{ site.layouts.mainPost.content }}
