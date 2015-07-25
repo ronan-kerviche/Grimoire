@@ -147,7 +147,7 @@ This is the index page.
 </tbody>
 </table>
 
-	<p>Finally, it is possible to process information from the layouts with three constructs :</p>
+	<p>It is also possible to process information from the layouts with three constructs :</p>
 {% call pygmentize html %%
 {% if object.variable %%
 This text will be present in the final page if object.variable exists.
@@ -168,3 +168,4 @@ Calling a function from the Modules/ folder :
 %}
 %}
 
+	<p>Finally, we can generate the site from the resources with the command : <code>python grimoire.py</code> from within the site directory.</p>

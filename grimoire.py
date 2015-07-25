@@ -1,3 +1,25 @@
+#The MIT License (MIT)
+#
+#Copyright (c) 2015 Ronan Kerviche
+#
+#Permission is hereby granted, free of charge, to any person obtaining a copy
+#of this software and associated documentation files (the "Software"), to deal
+#in the Software without restriction, including without limitation the rights
+#to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+#copies of the Software, and to permit persons to whom the Software is
+#furnished to do so, subject to the following conditions:
+#
+#The above copyright notice and this permission notice shall be included in
+#all copies or substantial portions of the Software.
+#
+#THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+#IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+#FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+#AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+#LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+#OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+#THE SOFTWARE.
+
 import sys
 import json
 from os import path, walk, makedirs
@@ -512,7 +534,9 @@ class Site(ObjectModel):
 			chainList('subNames', 'sub')
 		return elements
 
-def importModules(dirname):
+def importModules(dirname=''):
+	if not dirname:
+		dirname = path.dirname(path.realpath(__file__)) + '/Modules'
 	print u'Loading modules from %s ...' % dirname
 	sys.path.insert(0, dirname)
 	lst = getItemsList(dirname, True, False, '*.py')
@@ -530,7 +554,7 @@ def importModules(dirname):
 if __name__ == "__main__":
 	# Parse the arguments :
 	parser = argparse.ArgumentParser('Grimoire', description='Generate a static site with Grimoire.')
-	parser.add_argument('-m', '--modules', nargs=1, default=['Modules'], type=str, required=False, help=u'Specify from which directory to load the modules.')
+	parser.add_argument('-m', '--modules', nargs=1, default=[''], type=str, required=False, help=u'Specify from which directory to load the modules.')
 	parser.add_argument('-d', '--directory', nargs=1, default=['.'], type=str, required=False, help=u'Where to build the site.')
 	args = parser.parse_args(sys.argv[1:])
 	# Generate :
