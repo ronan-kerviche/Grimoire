@@ -259,15 +259,17 @@ class MiniProcessor:
 		else:
 			# Call the function and process back :
 			fun = globals()[call[1]]
-			return  string[:start] + self.process(fun(self, call[2:], string[middle:end])) + string[(end+2):]
+			#return  string[:start] + self.process(fun(self, call[2:], string[middle:end])) + string[(end+2):]
+			result = fun(self, call[2:], string[middle:end])
+			return  (string[:start] + result + string[(end+2):], start+len(result)) # Do not reprocess the output.
 
 	def applyFunction(self, string, start, middle, end):
 		matchObj = self.extractIf.match(string, start, middle)
 		if matchObj!=None:
-			return self.processIf(string, start, middle, end, matchObj)
+			return (self.processIf(string, start, middle, end, matchObj), start)
 		matchObj = self.extractForeach.search(string, start, middle)
 		if matchObj!=None:
-			return self.processFor(string, start, middle, end, matchObj)
+			return (self.processFor(string, start, middle, end, matchObj), start)
 		matchObj = self.extractFunc.search(string, start, middle)
 		if matchObj!=None:
 			return self.processFunc(string, start, middle, end, matchObj)
@@ -296,8 +298,8 @@ class MiniProcessor:
 			start = 0
 			(start, middle, end) = self.findBlock(string, start)
 			while start!=None:
-				string = self.applyFunction(string, start, middle, end)
-				(start, middle, end) = self.findBlock(string, start)
+				(string, nextStart) = self.applyFunction(string, start, middle, end)
+				(start, middle, end) = self.findBlock(string, nextStart)
 
 		# Replace remaining variables :
 		string = self.extractVar.sub(self.replaceValueFunction, string)

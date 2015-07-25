@@ -1,6 +1,4 @@
-{
-
-}
+{ }
 -----
 #postsList
 { }
@@ -87,5 +85,54 @@
 #postContent ul
 {
 	margin-left: 4em;
+}
+
+#postContent table
+{
+	width: 100%;	
+	background-color: {{layout.darkGray}};
+	border-radius: 1em;
+	margin: 0.5em;
+	border-spacing: 0;
+}
+
+#postContent tr
+{ }
+
+#postContent tr:nth-child(even)
+{
+	background: {{layout.darkerGray}};
+}
+
+#postContent th
+{
+	background: {{layout.darkerGray}};
+	text-align: center;
+	font-weight: bold;
+}
+
+#postContent th, td
+{
+	padding: 0.25em 1em;	
+}
+
+#postContent thead tr:first-child th:first-child
+{
+	border-radius: 1em 0 0 0;
+}
+
+#postContent thead tr:first-child th:last-child
+{
+	border-radius: 0 1em 0 0;
+}
+
+#postContent tbody tr:last-child td:first-child
+{
+	border-radius: 0 0 0 1em;
+}
+
+#postContent tbody tr:last-child td:last-child
+{
+	border-radius: 0 0 1em 0;
 }
 

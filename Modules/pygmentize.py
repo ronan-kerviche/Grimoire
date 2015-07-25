@@ -7,4 +7,9 @@ def apply(processor, args, string):
 		lexer = guess_lexer(string)
 	else:
 		lexer = get_lexer_by_name(args[0])
-	return highlight(string, lexer, HtmlFormatter(linenos=('linenos' in args)))
+	result = highlight(string, lexer, HtmlFormatter(linenos=('linenos' in args)))
+	# Change remaining characters :
+	result = result.replace('%', '&#37;');
+	result = result.replace('{', '&#123;');
+	result = result.replace('}', '&#125;');
+	return result

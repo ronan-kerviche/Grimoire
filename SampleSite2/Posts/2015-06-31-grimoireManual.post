@@ -42,4 +42,129 @@
 	<li><code>directories</code> : List the directories in the category (true or false). The listing is recursive.</li>
 </ul>
 
-	<p>Grimoire will start by listing all the files and directories (if enabled) in the categories (here <code>Posts/</code> and <code>Gallery/</code>). For each file found it will attempt to read it with the specified eader functions. Readers are located in the <code>Modules/</code> directory. Each contains a python function <code>def apply(filename):</code> which returns a tupple made of two elements, the first is a dictionnary of the data (key and value pairs) the other is the content of the resource. Both can be left empty if needed.</p>
+	<p>Grimoire will start by listing all the files in <code>layouts/</code> and then, all the files and directories (if enabled) in the categories (here <code>Posts/</code> and <code>Gallery/</code>). For each file found it will attempt to read it with the specified eader functions. Readers are located in the <code>Modules/</code> directory. Each contains a python function <code>def apply(filename):</code> which returns a tupple made of two elements, the first is a dictionnary of the data (key and value pairs) the other is the content of the resource. Both can be left empty if needed.</p>
+
+	<p>Each layout file can either be a raw text file or a text file with JSON header to declare variables separated from the text by a delimitation : <code>-----</code>. To generate HTML pages the header must contain one of the two following variable : <code>"generate" : "path/filename.html"</code> or <code>"foreach" : "var in site.variableList"</code>. The first will generate a single page and the second will generate one page per resource, each page will be saved to the same path as the resource with a standard HTML extension.</p>
+	
+{% call pygmentize text %%
+{
+	"generate": "index.html",
+	"someVariable": "someValue"
+}
+-----
+<!-- Some header -->
+
+This is the index page.
+
+<!-- Some footer -->
+%}
+
+	<p>And for the each post :</p>
+
+{% call pygmentize text %%
+{
+	"foreach": "post in site.categories.Posts.data",
+	"someVariable": "someValue"
+}
+-----
+<!-- Some header -->
+
+<h1>{{post.title}}</h1>
+{{post.content}}
+
+<!-- Some footer -->
+%}
+
+	<p><b>Variables</b> are surrounded by <code>&#123;&#123;</code> and <code>&#125;&#125;</code>. They are given as a standard object to member notation, with dots as separator : <code>&#123;&#123; rootObject.obj1.obj2.value &#125;&#125;</code> and can support spaces with double quotes : <code>&#123;&#123; rootObject.&quot;another object&quot;.value &#125;&#125;</code>. The following variables are set by default :</p>
+<ul>
+	<li><code>site</code> : Main site variable.</li>
+	<li><code>site.site</code> : Name of the site.</li>
+	<li><code>site.rootDirectory</code> : Root directory of the site on the server.</li>
+	<li><code>site.someVariable</code> : Any variable <i>someVariable</i> defined in <code>site.json</code>.</li>
+	<li><code>site.layouts</code> : All the listed layouts, by name.</li>
+	<li><code>site.layouts.myLayout</code> : Layout variable corresponding to the file <cde>layouts/myLayout.ext</code> (all the files there must have a different name).</li>
+	<li><code>site.layouts.myLayout.content</code> : Content of the previous file.</li>
+	<li><code>site.layouts.myLayout.someVariable</code> : Any variable <i>someVariable</i> defined in the header of the previous file.</li>	
+	<li><code>site.categories</code> : Contains all the categories listed in alphabetical order.</li>
+	<li><code>site.categories.myCategory</code> : Object containing the category <i>myCategory</i>.</li>
+	<li><code>site.categories.myCategories.someVariable</code> : Any variable <i>someVariable</i> defined in the category descriptor in <code>site.json</code>.</li>
+	<li><code>site.categories.myCategories.data</code> : List of the resource loaded for this category (to be iterated), in alphabetical order.</li>
+	<li><code>site.categories.myCategories.data."SiteFolderName/CategoryName/filename.ext"</code> : Particular resource file content.</li>
+	<li><code>site.categories.myCategories.data."SiteFolderName/CategoryName/filename.ext".content</code> : Content of a particular resource.</li>
+	<li><code>site.categories.myCategories.data."SiteFolderName/CategoryName/filename.ext".someVariable</code> : Any variable <i>someVariable</i> defined in the header of the resource.</li>
+</ul>
+
+	<p>For each resource we also have the following additional variables (<code>resource</code> is an arbitrary name here) : </p>
+<table>
+<thead>
+	<tr><th>Variable</th>					<th>Description</th></tr>
+</thead>
+<tbody>
+	<tr><td><code>resource.name</code></td>			<td>Name of the resource (filename without path nor extension).</td></tr>
+	<tr><td><code>resource.isFile</code></td>		<td>Defined if this is a file.</td></tr>
+	<tr><td><code>resource.filename</code></td>		<td>Filename of the resource.</td></tr>
+	<tr><td><code>resource.basename</code></td>		<td>Basename of the resource.</td></tr>
+	<tr><td><code>resource.dirname</code></td>		<td>Directory name of the resource</td></tr>
+	<tr><td><code>resource.localFilename</code></td>	<td>Filename from the site root.</td></tr>
+	<tr><td><code>resource.localDirname</code></td>		<td>Dirname from the site root.</td></tr>
+	<tr><td><code>resource.directoryName</code></td>	<td>Name of the containing directory (without path).</td></tr>
+	<tr><td><code>resource.parentDirname</code></td>	<td>Directory name of the parent (or None if it does not exist).</td></tr>
+	<tr><td><code>resource.localParentDirname</code></td>	<td>Parent directory name from the site root.</td></tr>
+	<tr><td><code>resource.outputDirname</code></td>	<td>Directory name for the output file.</td></tr>
+	<tr><td><code>resource.urlDirname</code></td>		<td>Directory url for the output file.</td></tr>
+	<tr><td><code>resource.outputFilename</code></td>	<td>Output filename.</td></tr>
+	<tr><td><code>resource.url</code></td>			<td>Url of the resource.</td></tr>
+	<tr><td><code>resource.firstFilename</code></td>	<td>Filename of the first file in the current directory.</td></tr>
+	<tr><td><code>resource.firstFile</code></td>		<td>First file in the current directory.</td></tr>
+	<tr><td><code>resource.firstDirname</code></td>		<td>Directory name of the first directory in the current directory.</td></tr>
+	<tr><td><code>resource.firstDirectory</code></td>	<td>First directory in the current directory</td></tr>
+	<tr><td><code>resource.previousFilename</code></td>	<td>Filename of the previous file in the current directory.</td></tr>
+	<tr><td><code>resource.previousFile</code></td>		<td>Previous file in the current directory.</td></tr>
+	<tr><td><code>resource.previousDirname</code></td>	<td>Previous directory name in the current directory.</td></tr>
+	<tr><td><code>resource.previousDirectory</code></td>	<td>Previous directory in the current directory.</td></tr>
+	<tr><td><code>resource.previousName</code></td>		<td>Name of the previous item in the current directory.</td></tr>
+	<tr><td><code>resource.previous</code></td>		<td>Previous item in the current directory.</td></tr>
+	<tr><td><code>resource.nextFilename</code></td>		<td>Filename of the next file in the current directory.</td></tr>
+	<tr><td><code>resource.nextFile</code></td>		<td>Next file in the current directory.</td></tr>
+	<tr><td><code>resource.nextDirname</code></td>		<td>Next directory name in the current directory.</td></tr>
+	<tr><td><code>resource.nextDirectory</code></td>	<td>Next directory in the cyrrent directory.</td></tr>
+	<tr><td><code>resource.nextName</code></td>		<td>Next item name in the current directory.</td></tr>
+	<tr><td><code>resource.next</code></td>			<td>Next item in the current directory.</td></tr>
+	<tr><td><code>resource.lastFilename</code></td>		<td>Filename of the last file in the current directory.</td></tr>
+	<tr><td><code>resource.lastFile</code></td>		<td>Last file in the current directory.</td></tr>
+	<tr><td><code>resource.lastDirname</code></td>		<td>Directory name of the last directory in the current directory.</td></tr>
+	<tr><td><code>resource.lastDirectory</code></td>	<td>Last directory in the current directory.</td></tr>
+	<tr><td><code>resource.lastName</code></td>		<td>Name of the last item in the current directory.</td></tr>
+	<tr><td><code>resource.last</code></td>			<td>Last item in the current directory.</td></tr>
+	<tr><td><code>resource.parentDirname</code></td>	<td>Directory name of the parent directory.</td></tr>
+	<tr><td><code>resource.parent</code></td>		<td>Parent directory.</td></tr>
+	<tr><td><code>resource.subFilenames</code></td>		<td>Filenames of the children files.</td></tr>
+	<tr><td><code>resource.subFiles</code></td>		<td>Children files.</td></tr>
+	<tr><td><code>resource.subDirnames</code></td>		<td>Directory names of the children directories.</td></tr>
+	<tr><td><code>resource.subDirectories</code></td>	<td>Children directories.</td></tr>
+	<tr><td><code>resource.subNames</code></td>		<td>Names of the children items.</td></tr>
+	<tr><td><code>resource.sub</code></td>			<td>Children items.</td></tr>
+</tbody>
+</table>
+
+	<p>Finally, it is possible to process information from the layouts with three constructs :</p>
+{% call pygmentize html %%
+{% if object.variable %%
+This text will be present in the final page if object.variable exists.
+%}
+
+{% ifnot object.variable %%
+This text will be present in the final page if object.variable does not exist.
+%}
+
+Elements list :
+{% foreach element in object.list %%
+	Here is another value : {{element.someValue}}
+%}
+
+Calling a function from the Modules/ folder :
+{% call myFunction arg1 arg2 %%
+	Some relevant body.
+%}
+%}
+
