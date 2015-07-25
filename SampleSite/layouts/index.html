@@ -1,27 +1,27 @@
 {
-	"generate": "index.html"
+	"generate": "index.html",
+	"addHeader": "True",
+	"addFooter": "True"
 }
 -----
-{{ site.layouts.defaultPre.content}}
+{{ site.layouts.mainPre.content }}	
 
-<div class="home">
+	<h1>Grimoire Sample Site</h1>
+	<p>Last posts :</p>
+	<ul>
+	{% foreach post in site.categories.Posts.data %%
+		<li><a href="{{post.url}}">{% if post.title %% {{post.title}} %}{% ifnot post.title %% <i>Untitled</i> %}</a></li>
+	%}
+	</ul>
 
-  <!-- <h1 class="page-heading">Posts</h1> -->
+	<br>
+	<p>Last images :</p>
+	<ul>
+	{% foreach item in site.categories.Gallery.data %%
+		{% if item.isFile %%
+		<li><a href="{{item.url}}">{{item.name}}</a></li>
+		%}
+	%}
+	</ul>
 
-  <ul class="post-list">
-    {% foreach post in site.posts %%
-      <li>
-	<span class="post-meta">{{ post.date }}</span><span style="padding: 1em;">//</span> <a href="{{ post.url }}">{{ post.title }}</a>
-        <!--<span class="post-meta">{{ post.date | date: "%b %-d, %Y" }}</span>
-        <h2>
-          <a class="post-link" href="{{ post.url | prepend: site.baseurl }}">{{ post.title }}</a>
-        </h2>-->
-      </li>
-    %}
-  </ul>
-
-  <!-- <p class="rss-subscribe">subscribe <a href="{{ "/feed.xml" | prepend: site.baseurl }}">via RSS</a></p> -->
-
-</div>
-
-{{ site.layouts.defaultPost.content}}
+{{ site.layouts.mainPost.content }}

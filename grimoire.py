@@ -5,6 +5,7 @@ import re
 import fnmatch
 import codecs
 import bisect
+import argparse
 
 # Global tools :
 def getStrippedFilename(filename):
@@ -446,42 +447,48 @@ class Site(ObjectModel):
 		elements = {}
 		previousFilename = None
 		for filename in filenames :
-			elements[filename] = {}
+			current = path.relpath(filename, self['dirname'])
+			elements[current] = {}
 			# Just the name :
-			elements[filename]['name'] = getStrippedFilename(filename)
+			elements[current]['name'] = getStrippedFilename(filename)
+			print u'elements[%s]["name"] = %s' % (current, elements[current]['name'])
 			# File test :
-			elements[filename]['isFile'] = True if path.isfile(filename) else None
+			elements[current]['isFile'] = True if path.isfile(filename) else None
 			# Basic filename data :
-			elements[filename]['filename'] = filename
-			elements[filename]['basename'] = path.basename(filename)
-			elements[filename]['dirname'] = path.dirname(filename).strip('/') if elements[filename]['isFile'] else path.dirname(filename + '/').strip('/')
+			elements[current]['filename'] = filename
+			elements[current]['basename'] = path.basename(filename)
+			elements[current]['dirname'] = path.dirname(filename).strip('/') if elements[current]['isFile'] else path.dirname(filename + '/').strip('/')
 			# Basic local filename data (stripped from the path to the site :
-			elements[filename]['localFilename'] = path.relpath(filename, self['dirname'])
-			elements[filename]['localDirname'] = path.relpath(elements[filename]['dirname'], self['dirname']).strip('/')
-			elements[filename]['directoryName'] = path.basename(elements[filename]['localDirname'])
+			elements[current]['localFilename'] = path.relpath(filename, self['dirname'])
+			elements[current]['localDirname'] = path.relpath(elements[current]['dirname'], self['dirname']).strip('/')
+			elements[current]['directoryName'] = path.basename(elements[current]['localDirname'])
 			# Basic information about the parent :
-			elements[filename]['parentDirname'] = path.dirname(elements[filename]['dirname']).strip('/')
-			elements[filename]['localParentDirname'] = path.dirname(elements[filename]['localDirname']).strip('/')
+			elements[current]['parentDirname'] = path.dirname(elements[current]['dirname']).strip('/')
+			elements[current]['localParentDirname'] = path.dirname(elements[current]['localDirname']).strip('/')
 			# Output directory :
-			elements[filename]['outputDirname'] = ('%s/site/%s' % (self['dirname'], elements[filename]['localDirname'])).strip('/')
-			elements[filename]['urlDirname'] = '%s/%s' % (self['rootDirectory'], elements[filename]['localDirname'])
+			elements[current]['outputDirname'] = ('%s/site/%s' % (self['dirname'], elements[current]['localDirname'])).strip('/')
+			elements[current]['urlDirname'] = '%s/%s' % (self['rootDirectory'], elements[current]['localDirname'])
 			if path.isfile(filename):
-				elements[filename]['outputFilename'] = '%s/%s.html' % (elements[filename]['outputDirname'], elements[filename]['name'])
-				elements[filename]['url'] = '%s/%s.html' % (elements[filename]['urlDirname'], elements[filename]['name'])
+				elements[current]['outputFilename'] = '%s/%s.html' % (elements[current]['outputDirname'], elements[current]['name'])
+				elements[current]['url'] = '%s/%s.html' % (elements[current]['urlDirname'], elements[current]['name'])
 				(data, content) = reader(filename)
 				for var in data:
-					elements[filename][var] = data[var]
-				elements[filename]['content'] = content
+					elements[current][var] = data[var]
+				elements[current]['content'] = content
 			else:
-				elements[filename]['outputFilename'] = '%s/index.html' % (elements[filename]['outputDirname'])
-				elements[filename]['url'] = '%s/index.html' % (elements[filename]['urlDirname'])
+				elements[current]['outputFilename'] = '%s/index.html' % (elements[current]['outputDirname'])
+				elements[current]['url'] = '%s/index.html' % (elements[current]['urlDirname'])
 			# Copy the other data :
 			for var in filenames[filename]:
-				elements[filename][var] = filenames[filename][var]
+				elements[current][var] = filenames[filename][var]
 		# Make the chains :
-		for filename in elements:
+		for current in elements:
 			def chain(name, elName):
-				elements[filename][elName] = elements[elements[filename][name]] if elements[filename].get(name)!=None and elements.get(elements[filename][name])!=None else None
+				if elements[current].get(name)!=None:
+					relName = path.relpath(elements[current][name], self['dirname'])
+					elements[current][elName] = elements[relName] if elements.get(relName)!=None else None
+				else:
+					elements[current][elName] = None
 			chain('firstFilename', 'firstFile')
 			chain('firstDirname', 'firstDirectory')
 			chain('firstName', 'first')
@@ -496,15 +503,17 @@ class Site(ObjectModel):
 			chain('lastName', 'last')
 			chain('parentDirname', 'parent')
 			def chainList(name, elName):
-				elements[filename][elName] = {}
-				for v in elements[filename][name]:
-					elements[filename][elName][v] = elements[v]
+				elements[current][elName] = {}
+				for v in elements[current][name]:
+					relName = path.relpath(v, self['dirname'])
+					elements[current][elName][v] = elements[relName]
 			chainList('subFilenames', 'subFiles')
 			chainList('subDirnames', 'subDirectories')
 			chainList('subNames', 'sub')
 		return elements
 
 def importModules(dirname):
+	print u'Loading modules from %s ...' % dirname
 	sys.path.insert(0, dirname)
 	lst = getItemsList(dirname, True, False, '*.py')
 	for filename in lst:	
@@ -519,5 +528,11 @@ def importModules(dirname):
 
 # main() :
 if __name__ == "__main__":
-	importModules('Modules')
-	site = Site(sys.argv[1])	
+	# Parse the arguments :
+	parser = argparse.ArgumentParser('Grimoire', description='Generate a static site with Grimoire.')
+	parser.add_argument('-m', '--modules', nargs=1, default=['Modules'], type=str, required=False, help=u'Specify from which directory to load the modules.')
+	parser.add_argument('-d', '--directory', nargs=1, default=['.'], type=str, required=False, help=u'Where to build the site.')
+	args = parser.parse_args(sys.argv[1:])
+	# Generate :
+	importModules(args.modules[0])
+	site = Site(args.directory[0])

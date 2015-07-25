@@ -66,6 +66,16 @@
 	float: left;
 }
 
+#nextPost a
+{
+	color: {{layout.white}};
+}
+
+#nextPost a:visited
+{
+	color: {{layout.lighterGray}}
+}
+
 #previousPost
 {
 	float: right;

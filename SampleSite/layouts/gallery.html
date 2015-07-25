@@ -1,60 +1,114 @@
 {
-	"foreach":"img in site.gallery",
-	"unknownText" : "<i>Unknown</i>"
+	"foreach": "item in site.categories.Gallery.data",
+	"unknownText" : "Unknown",
+	"addHeader": "True",
+	"fixedHeight": "True",
+	"thumbnailSize": "256"
 }
 -----
-{% if img.isFile %% {% call copyAndThumbImage {{img.filename}} 0.5 0.5 {{img.outputDirname}}/{{img.basename}} 256 256 {{img.outputDirname}}/thumb_{{img.basename}} %} %}
+{% if item.isFile %% {% call copyAndThumbImage {{item.filename}} 0.5 0.5 {{item.outputDirname}}/{{item.basename}} {{layout.thumbnailSize}} {{layout.thumbnailSize}} {{item.outputDirname}}/thumb_{{item.basename}} %} %}
 
-<!DOCTYPE html>
-<html>
-<head>
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title>{% if page.title %% {{ page.title }} %}{% ifnot page.title %% Untitled %}</title>
-	<meta name="description" content="{% if page.excerpt %% page.excerpt %}{% ifnot page.excerpt %% {{ site.description }} %}">
-	<link rel="stylesheet" href="{{site.rootDirectory}}/galleryStyle.css">
-	<!-- <link rel="canonical" href="{{ page.url }}"> -->
-</head>
-<body>
-	<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+{{ site.layouts.mainPre.content }}
 
-	<!-- <div class="page-content"> -->
-	<!-- <div class="wrapper"> -->
-	
-	<!-- <div class="post"> -->
-{% if img.isFile %%
-	<a href="{{img.urlDirname}}/{{img.basename}}"><img src="{{img.urlDirname}}/{{img.basename}}" style="height:100%; width:auto;"></a>
-	<table style="width:100%"><tr>
-	<td><span class="imagePrev">{% if img.previousFile %% <a href="{{img.previousFile.url}}">&lt;</a>%}{% ifnot img.previousFile %% &#183; %}</span></td>
-	<td width="95%" align="center">
-	<div class="imageDescription">
-	<span class="exifTag">Filename :</span> {{img.basename}} &nbsp;&nbsp;
-	<span class="exifTag">Date :</span> {% if img.EXIF.DateTimeOriginal %% {{img.EXIF.DateTimeOriginal}} %}{% ifnot img.EXIF.DateTimeOriginal %% {{layout.unknownText}} %}&nbsp;&nbsp;
-	<span class="exifTag">Camera :</span> {% if img.MakerNote.ModelID %% {{img.MakerNote.ModelID}} %}{% ifnot img.MakerNote.ModelID %% {{layout.unknownText}} %} &nbsp;&nbsp;
-	<span class="exifTag">Lens :</span> {% if img.EXIF.LensModel %% {{img.EXIF.LensModel}} %}{% ifnot img.EXIF.LensModel %% {{layout.unknownText}} %} &nbsp;&nbsp;
-	<br>
- 	<span class="exifTag">Focal Length :</span> {% if img.EXIF.FocalLength %% {% call calc %% {{img.EXIF.FocalLength}} %} mm %}{% ifnot img.EXIF.FocalLength %% {{layout.unknownText}} %} &nbsp;&nbsp;
-	<span class="exifTag">Aperture :</span> {% if img.EXIF.FNumber %% F/{% call calc %% {{img.EXIF.FNumber}} %} %}{% ifnot img.EXIF.FNumber %% {{layout.unknownText}} %} &nbsp;&nbsp;
-	<span class="exifTag">Exposure :</span> {% if img.EXIF.ExposureTime %% {{img.EXIF.ExposureTime}} %}{% ifnot img.EXIF.ExposureTime %% {{layout.unknownText}} %}&nbsp;&nbsp;
-	<span class="exifTag">ISO :</span> {% if img.EXIF.ISOSpeedRatings %% {{img.EXIF.ISOSpeedRatings}} %}{% ifnot img.EXIF.ISOSpeedRatings %% {{layout.unknownText}} %}&nbsp;&nbsp;
+	{% ifnot item.isFile %%	
+	<div id="imageBlocksWrap">
+		<!-- Directories -->
+		{%if item.parent %%
+		<div class="imageBox">
+		<a href="{{item.parent.url}}">
+		<div class="innerBackBox">
+			Back
+		</div>
+		</a>
+		</div>
+		%}
+		{% foreach subItem in item.subDirectories %%
+		<div class="imageBox">
+		<a href="{{subItem.url}}">
+		<div class="innerDirectoryBox">
+			{{subItem.name}}
+		</div>
+		</a>
+		</div>
+		%}
+		<!-- Images -->
+		{% foreach subItem in item.subFiles %%
+		<div class="imageBox">
+		<div class="innerImageBox">
+			<a href="{{subItem.url}}">
+			<img src="{{subItem.urlDirname}}/thumb_{{subItem.basename}}">
+			</a>
+		</div>
+		</div>
+		%}
+	</div>	
+	%}
+	{% if item.isFile %%	
+	<!-- Image -->
+	<div id="imageDiv">
+	<img src="{{item.urlDirname}}/{{item.basename}}">
 	</div>
-	</td>
-	<td><span class="imageNext">{% if img.nextFile %% <a href="{{img.nextFile.url}}">&gt;</a>%}{% ifnot img.nextFile %% &#183; %}</span></td>
-	</tr></table>
-%}
-{% ifnot img.isFile %%
-{% foreach file in img.subFiles %%
-{% if file.isFile %% 
-	<a href="{{file.url}}"><img src="{{file.urlDirname}}/thumb_{{file.basename}}"></a><br>
-%}
-%}
-%}
+	<div id="imageNavBar">
+	<ul>
+		{% if item.previousFile %%
+		<li class="previousImage"><a href="{{item.previousFile.url}}">&lt;</a></li>
+		%}
+		{% ifnot item.previousFile %%
+		<li class="placeHolder"> </li>
+		%}
+		<li class="imageDescription">
+		<span class="exifField">
+			<span class="exifTag">Gallery :</span>
+			<span class="exifValue"><a href="{{item.urlDirname}}/index.html">{{item.directoryName}}</a></span>
+		</span>
+		<span class="exifField">
+			<span class="exifTag">Filename :</span> 
+			<span class="exifValue">{{item.basename}}</span>
+		</span>
+		<span class="exifField">
+			<span class="exifTag">Date :</span>
+			{% if item.EXIF.DateTimeOriginal %% <span class="exifValue">{{item.EXIF.DateTimeOriginal}}</span> %}{% ifnot item.EXIF.DateTimeOriginal %% <span class="exifUnknown">{{layout.unknownText}}</span> %}
+		</span>
+		<span class="exifField">
+			<span class="exifTag">Camera :</span>
+			{% if item.MakerNote.ModelID %% <span class="exifValue">{{item.MakerNote.ModelID}}</span> %}{% ifnot item.MakerNote.ModelID %% <span class="exifUnknown">{{layout.unknownText}}</span> %}	
+		</span>
+		<span class="exifField">
+			<span class="exifTag">Lens :</span> 
+			{% if item.EXIF.LensModel %% <span class="exifValue">{{item.EXIF.LensModel}}</span> %}{% ifnot item.EXIF.LensModel %% <span class="exifUnknown">{{layout.unknownText}}</span> %}	
+		</span>
+		<span class="exifField">
+			<span class="exifTag">Focal Length :</span>
+			{% if item.EXIF.FocalLength %% <span class="exifValue">{% call calc %% {{item.EXIF.FocalLength}} %} mm</span> %}{% ifnot item.EXIF.FocalLength %% <span class="exifUnknown">{{layout.unknownText}}</span> %}	
+		</span>
+		<span class="exifField">
+			<span class="exifTag">Aperture :</span>
+			{% if item.EXIF.FNumber %% <span class="exifValue">F/{% call calc %% {{item.EXIF.FNumber}} %}</span> %}{% ifnot item.EXIF.FNumber %% <span class="exifUnknown">{{layout.unknownText}}</span> %}
+		</span>
+		<span class="exifField">
+			<span class="exifTag">Exposure :</span>
+			{% if item.EXIF.ExposureTime %% <span class="exifValue">{{item.EXIF.ExposureTime}} s</span> %}{% ifnot item.EXIF.ExposureTime %% <span class="exifUnknown">{{layout.unknownText}}</span> %}
+		</span>
+		<span class="exifField">
+			<span class="exifTag">ISO :</span>
+			{% if item.EXIF.ISOSpeedRatings %% <span class="exifValue">{{item.EXIF.ISOSpeedRatings}}</span> %}{% ifnot item.EXIF.ISOSpeedRatings %% <span class="exifUnknown">{{layout.unknownText}}</span> %}
+		</span>
+		{% if item.EXIF.UserComment %% 
+		<br>
+		<span class="exifField">
+			<span class="exifTag">Comment :</span>
+			<span class="exifValue">{{item.EXIF.UserComment}}</span>
+		</span>
+		%}
+		</li>
+		{% if item.nextFile %%
+		<li class="nextImage"><a href="{{item.nextFile.url}}">&gt;</a></li>
+		%}
+		{% ifnot item.nextFile %%
+		<li class="placeHolder"> </li>
+		%}
+	<ul>
 	</div>
+	%}
 
-	</div>
-	</div>
-	
-	{{ site.layouts.footer.content }}
-
-</body>
-</html>
+{{ site.layouts.mainPost.content }}
