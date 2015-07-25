@@ -39,7 +39,7 @@ html, body
 
 a
 {
-	color: {{layout.white}}
+	color: {{layout.white}};
 	text-decoration: underline;
 }
 
