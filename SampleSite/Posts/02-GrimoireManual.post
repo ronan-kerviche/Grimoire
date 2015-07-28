@@ -1,7 +1,7 @@
 {
 	"title":  "Grimoire Manual",
 	"date":   "Jul 25, 2015",
-	"topics": "grimoire manual"	
+	"topics": "grimoire, manual"	
 }
 -----
 	<p>Grimoire is a minuscule static site generator written in Python. It focuses on generating content from simple data to be integrated in layouts. The root directory of a site should contain a <code>site.json</code> descriptor file and a <code>layouts/</code> directory containing all of the layouts to be used. Layouts can be any type of text files, including but not limited to HTML, CSS or SVG. The site descriptor file gives global variable and site categories to be loaded. It ressemble the following example :</p>
@@ -76,23 +76,28 @@ This is the index page.
 %}
 
 	<p><b>Variables</b> are surrounded by <code>&#123;&#123;</code> and <code>&#125;&#125;</code>. They are given as a standard object to member notation, with dots as separator : <code>&#123;&#123; rootObject.obj1.obj2.value &#125;&#125;</code> and can support spaces with double quotes : <code>&#123;&#123; rootObject.&quot;another object&quot;.value &#125;&#125;</code>. The following variables are set by default :</p>
-<ul>
-	<li><code>site</code> : Main site variable.</li>
-	<li><code>site.site</code> : Name of the site.</li>
-	<li><code>site.rootDirectory</code> : Root directory of the site on the server.</li>
-	<li><code>site.someVariable</code> : Any variable <i>someVariable</i> defined in <code>site.json</code>.</li>
-	<li><code>site.layouts</code> : All the listed layouts, by name.</li>
-	<li><code>site.layouts.myLayout</code> : Layout variable corresponding to the file <cde>layouts/myLayout.ext</code> (all the files there must have a different name).</li>
-	<li><code>site.layouts.myLayout.content</code> : Content of the previous file.</li>
-	<li><code>site.layouts.myLayout.someVariable</code> : Any variable <i>someVariable</i> defined in the header of the previous file.</li>	
-	<li><code>site.categories</code> : Contains all the categories listed in alphabetical order.</li>
-	<li><code>site.categories.myCategory</code> : Object containing the category <i>myCategory</i>.</li>
-	<li><code>site.categories.myCategories.someVariable</code> : Any variable <i>someVariable</i> defined in the category descriptor in <code>site.json</code>.</li>
-	<li><code>site.categories.myCategories.data</code> : List of the resource loaded for this category (to be iterated), in alphabetical order.</li>
-	<li><code>site.categories.myCategories.data."SiteFolderName/CategoryName/filename.ext"</code> : Particular resource file content.</li>
-	<li><code>site.categories.myCategories.data."SiteFolderName/CategoryName/filename.ext".content</code> : Content of a particular resource.</li>
-	<li><code>site.categories.myCategories.data."SiteFolderName/CategoryName/filename.ext".someVariable</code> : Any variable <i>someVariable</i> defined in the header of the resource.</li>
-</ul>
+<table>
+<thead>
+	<tr><th>Variable</th>											<th>Description</th></tr>
+</thead>
+<tbody>
+	<tr><td><code>site</code></td>										<td>Main site variable.</td></tr>
+	<tr><td><code>site.site</code></td>									<td>Name of the site.</td></tr>
+	<tr><td><code>site.rootDirectory</code></td>								<td>Root directory of the site on the server.</td></tr>
+	<tr><td><code>site.someVariable</code></td>								<td>Any variable <i>someVariable</i> defined in <code>site.json</code>.</td></tr>
+	<tr><td><code>site.layouts</code></td>									<td>All the listed layouts, by name.</td></tr>
+	<tr><td><code>site.layouts.myLayout</code></td>								<td>Layout variable corresponding to the file <cde>layouts/myLayout.ext</code> (all the files there must have a different name).</td></tr>
+	<tr><td><code>site.layouts.myLayout.content</code></td>							<td>Content of the previous file.</td></tr>
+	<tr><td><code>site.layouts.myLayout.someVariable</code></td>						<td>Any variable <i>someVariable</i> defined in the header of the previous file.</td></tr>
+	<tr><td><code>site.categories</code></td>								<td>Contains all the categories listed in alphabetical order.</td></tr>
+	<tr><td><code>site.categories.myCategory</code></td>							<td>Object containing the category <i>myCategory</i>.</td></tr>
+	<tr><td><code>site.categories.myCategories.someVariable</code></td>					<td>Any variable <i>someVariable</i> defined in the category descriptor in <code>site.json</code>.</td></tr>
+	<tr><td><code>site.categories.myCategories.data</code></td>						<td>List of the resource loaded for this category (to be iterated), in alphabetical order.</td></tr>
+	<tr><td><code>site.categories.myCategories.data."CategoryName/filename.ext"</code></td>			<td>Particular resource file content.</td></tr>
+	<tr><td><code>site.categories.myCategories.data."CategoryName/filename.ext".content</code></td>		<td>Content of a particular resource.</td></tr>
+	<tr><td><code>site.categories.myCategories.data."CategoryName/filename.ext".someVariable</code></td>	<td>Any variable <i>someVariable</i> defined in the header of the resource.</td></tr>
+</tbody>
+</table>
 
 	<p>For each resource we also have the following additional variables (<code>resource</code> is an arbitrary name here) : </p>
 <table>
@@ -168,4 +173,4 @@ Calling a function from the Modules/ folder :
 %}
 %}
 
-	<p>Finally, we can generate the site from the resources with the command : <code>python grimoire.py</code> from within the site directory.</p>
+	<p>Finally, we can generate the site from the resources with the command : <code>python /path/to/grimoire.py</code> from within the site directory.</p>

@@ -1,10 +1,14 @@
 <!DOCTYPE html>
 <html>
 <head>
+	<!--Meta Information -->
 	<meta charset="utf-8">
-	<title>TestPage</title>
+	{% if layout.pageTitle %% <title>{{layout.pageTitle}}</title> %}
+	{% ifnot layout.pageTitle %% <title>{{site.site}}</title> %}
+	{% if layout.pageDescription %% <meta name="description" content="{{layout.pageDescription}}"> %}
+	{% if layout.pageKeywords %% <meta name="keywords" content="{{layout.pageKeywords}}"> %}
+
 	<link rel="stylesheet" href="{{site.rootDirectory}}/mainStyleSheet.css">
-	<!-- TO BE RESET <link rel="canonical" href="{{site.rootDirectory}}/index.html"> -->
 	
 	{% if layout.useMathJAX %%
 	<script type="text/x-mathjax-config">

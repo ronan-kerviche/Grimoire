@@ -3,7 +3,9 @@
 	"unknownText" : "Unknown",
 	"addHeader": "True",
 	"fixedHeight": "True",
-	"thumbnailSize": "256"
+	"thumbnailSize": "256",
+	"pageTitle": "{{item.name}} - {{site.site}}",
+	"pageDescription": "Gallery {{site.site}}, {{item.name}}"
 }
 -----
 {% if item.isFile %% {% call copyAndThumbImage {{item.filename}} 0.5 0.5 {{item.outputDirname}}/{{item.basename}} {{layout.thumbnailSize}} {{layout.thumbnailSize}} {{item.outputDirname}}/thumb_{{item.basename}} %} %}

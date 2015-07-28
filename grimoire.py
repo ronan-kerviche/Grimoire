@@ -473,7 +473,6 @@ class Site(ObjectModel):
 			elements[current] = {}
 			# Just the name :
 			elements[current]['name'] = getStrippedFilename(filename)
-			print u'elements[%s]["name"] = %s' % (current, elements[current]['name'])
 			# File test :
 			elements[current]['isFile'] = True if path.isfile(filename) else None
 			# Basic filename data :
