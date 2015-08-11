@@ -22,7 +22,7 @@ void main(void)
 $$\frac{\left|a-b\right|^2}{\left|a+b\right|^2}$$
 
 <p>It is also easy to link against known resources such as the following image : </p>
-<center><img src="{{site.categories.Gallery.data."Gallery/IMG_0700.JPG".urlDirname}}/thumb_{{site.categories.Gallery.data."Gallery/IMG_0700.JPG".basename}}"></center>
+<img src="{{site.categories.Gallery.data."Gallery/IMG_0700.JPG".urlDirname}}/thumb_{{site.categories.Gallery.data."Gallery/IMG_0700.JPG".basename}}" alt="Gallery/IMG_0700.JPG" style="display: block; margin-left: auto; margin-right: auto;">
 
 <p>Or to list resources :</p>
 <ul>

@@ -1,7 +1,6 @@
 {
 	"site": "GrimoireSampleSite",
-	"rootDirectory": "/home/arkh/Code/Grimoire/SampleSite/site",
-	"wwwRootDirectory": "/GrimoireSampleSite",
+	"rootDirectory": "/GrimoireSampleSite",
 	"categories":[
 	{
 		"category": "Posts",

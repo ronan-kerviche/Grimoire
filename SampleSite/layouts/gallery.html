@@ -38,7 +38,7 @@
 		<div class="imageBox">
 		<div class="innerImageBox">
 			<a href="{{subItem.url}}">
-			<img src="{{subItem.urlDirname}}/thumb_{{subItem.basename}}">
+			<img src="{{subItem.urlDirname}}/thumb_{{subItem.basename}}" alt="thumb_{{subItem.basename}}">
 			</a>
 		</div>
 		</div>
@@ -48,7 +48,7 @@
 	{% if item.isFile %%	
 	<!-- Image -->
 	<div id="imageDiv">
-	<img src="{{item.urlDirname}}/{{item.basename}}">
+	<img src="{{item.urlDirname}}/{{item.basename}}" alt="{{item.basename}}">
 	</div>
 	<div id="imageNavBar">
 	<ul>
@@ -109,7 +109,7 @@
 		{% ifnot item.nextFile %%
 		<li class="placeHolder"> </li>
 		%}
-	<ul>
+	</ul>
 	</div>
 	%}
 

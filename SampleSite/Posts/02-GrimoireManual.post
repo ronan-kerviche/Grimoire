@@ -86,7 +86,7 @@ This is the index page.
 	<tr><td><code>site.rootDirectory</code></td>								<td>Root directory of the site on the server.</td></tr>
 	<tr><td><code>site.someVariable</code></td>								<td>Any variable <i>someVariable</i> defined in <code>site.json</code>.</td></tr>
 	<tr><td><code>site.layouts</code></td>									<td>All the listed layouts, by name.</td></tr>
-	<tr><td><code>site.layouts.myLayout</code></td>								<td>Layout variable corresponding to the file <cde>layouts/myLayout.ext</code> (all the files there must have a different name).</td></tr>
+	<tr><td><code>site.layouts.myLayout</code></td>								<td>Layout variable corresponding to the file <code>layouts/myLayout.ext</code> (all the files there must have a different name).</td></tr>
 	<tr><td><code>site.layouts.myLayout.content</code></td>							<td>Content of the previous file.</td></tr>
 	<tr><td><code>site.layouts.myLayout.someVariable</code></td>						<td>Any variable <i>someVariable</i> defined in the header of the previous file.</td></tr>
 	<tr><td><code>site.categories</code></td>								<td>Contains all the categories listed in alphabetical order.</td></tr>
