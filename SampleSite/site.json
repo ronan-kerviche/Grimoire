@@ -14,7 +14,7 @@
 		"files": "true",
 		"directories": "true"
 	}],
-	"description": "A Sample Blog by Grimoire",
+	"description": "A Sample Blog by Grimoire, <a href=\"https://github.com/ronan-kerviche/Grimoire\">browse code on GitHub</a>",
 	"title": "Sample Site",
 	"githubUsername": "ronan-kerviche"
 }

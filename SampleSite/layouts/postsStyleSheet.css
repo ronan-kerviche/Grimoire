@@ -25,7 +25,8 @@
 
 #postsList .postDate
 {
-	color: {{layout.lighterGray}}
+	float: left;
+	width: 7em;
 }
 
 #postsList .separator
