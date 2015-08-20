@@ -19,19 +19,24 @@
 #LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 #THE SOFTWARE.
+#
+# More information at https://github.com/ronan-kerviche/Grimoire
+#
 
 import sys
 import json
-from os import path, walk, makedirs
+from os import path, walk, makedirs, getcwd
 import re
 import fnmatch
 import codecs
 import bisect
 import argparse
+from BaseHTTPServer import HTTPServer
+from SimpleHTTPServer import SimpleHTTPRequestHandler
 
 # Global tools :
 def getStrippedFilename(filename):
-	return path.splitext(path.basename(filename))[0]	
+	return path.splitext(path.basename(filename))[0]
 
 def prepareFileWrite(filename):
 	directory = path.dirname(filename)
@@ -408,6 +413,7 @@ class Site(ObjectModel):
 		self.checkParameter('site')
 		self.checkParameter('rootDirectory')
 		self.checkParameter('categories')
+		self['rootDirectory'] = self['rootDirectory'].rstrip('/')
 		# Load all the layouts :
 		print u'Loading the layouts : '
 		self['layouts'] = {}
@@ -422,7 +428,7 @@ class Site(ObjectModel):
 			self['categories'][category['category']] = category
 		for category in self['categories']:
 			print '  %s ...' % category
-			self['categories'][category]['data'] = self.listElementsInCategory(self['categories'][category])	
+			self['categories'][category]['data'] = self.listElementsInCategory(self['categories'][category])
 		# Process them :
 		layoutsToProcess = self['layouts'].keys()
 		while layoutsToProcess:
@@ -447,12 +453,15 @@ class Site(ObjectModel):
 	def listElementsInCategory(self, category):
 		if category.get('category')==None:
 			raise NameError(u'Missing category name.')
-		if category.get('reader')==None:
-			raise NameError(u'Reader module name not declared.')
-		if globals().get(category['reader'])==None:
-			raise NameError(u'Category %s : unknown reader module %s.' % (category['category'], category['reader']))
+		#if category.get('reader')==None:
+		#	raise NameError(u'Reader module name not declared.')
+		if category.get('reader')!=None:
+			if globals().get(category['reader'])==None:
+				raise NameError(u'Category %s : unknown reader module %s.' % (category['category'], category['reader']))
+			else:
+				reader = globals()[category['reader']]
 		else:
-			reader = globals()[category['reader']]
+			reader = None
 		# Settings :
 		if category.get('files')!=None:
 			files = (category['files'].lower()==str(u'True').lower())
@@ -492,10 +501,14 @@ class Site(ObjectModel):
 			if path.isfile(filename):
 				elements[current]['outputFilename'] = '%s/%s.html' % (elements[current]['outputDirname'], elements[current]['name'])
 				elements[current]['url'] = '%s/%s.html' % (elements[current]['urlDirname'], elements[current]['name'])
-				(data, content) = reader(filename)
-				for var in data:
-					elements[current][var] = data[var]
-				elements[current]['content'] = content
+				elements[current]['urlRaw'] = '%s/%s' % (elements[current]['urlDirname'], elements[current]['basename'])
+				if reader!=None:
+					(data, content) = reader(filename, self)
+					if data!=None:
+						for var in data:
+							elements[current][var] = data[var]
+					if content!=None:
+						elements[current]['content'] = content
 			else:
 				elements[current]['outputFilename'] = '%s/index.html' % (elements[current]['outputDirname'])
 				elements[current]['url'] = '%s/index.html' % (elements[current]['urlDirname'])
@@ -533,6 +546,7 @@ class Site(ObjectModel):
 			chainList('subNames', 'sub')
 		return elements
 
+# Import modules tool :
 def importModules(dirname=''):
 	if not dirname:
 		dirname = path.dirname(path.realpath(__file__)) + '/Modules'
@@ -549,13 +563,38 @@ def importModules(dirname=''):
 			else:
 				print u'[WARNING] Module %s does not have a apply function.' % moduleName
 
+# Serve the local site :
+class GrimoireHTTPHandler(SimpleHTTPRequestHandler):
+	def translate_path(self, currentPath):
+		siteDirectory = path.join(getcwd(), 'site')
+
+		# Redirect both '/' and the rootDirectory set in site.json to the local directory site :
+		routes = [(site['rootDirectory'] + '/', siteDirectory), ('/', siteDirectory)]
+
+		# look up routes and get root directory
+		for pattern, rootDirectory in routes:
+			if currentPath.startswith(pattern):
+				currentPath = path.join(rootDirectory, currentPath[len(pattern):])
+				break
+		return currentPath
+
+def serveSite(localhostStr, port):
+	print u'Server started on %s:%d' % (localhostStr, port)
+	httpd = HTTPServer((localhostStr, port), GrimoireHTTPHandler)
+	httpd.serve_forever()
+
 # main() :
 if __name__ == "__main__":
 	# Parse the arguments :
 	parser = argparse.ArgumentParser('Grimoire', description='Generate a static site with Grimoire.')
 	parser.add_argument('-m', '--modules', nargs=1, default=[''], type=str, required=False, help=u'Specify from which directory to load the modules.')
 	parser.add_argument('-d', '--directory', nargs=1, default=['.'], type=str, required=False, help=u'Where to build the site.')
+	parser.add_argument('-s', '--serve', action='store_true', help=u'Serve the site locally, see the port option.')
+	parser.add_argument('-p', '--port', nargs=1, default=[8000], type=int, required=False, help=u'Serve the site locally, see the port option.')
 	args = parser.parse_args(sys.argv[1:])
-	# Generate :
+	# Generate :	
 	importModules(args.modules[0])
 	site = Site(args.directory[0])
+	if args.serve:
+		serveSite('127.0.0.1', args.port[0])
+

@@ -34,7 +34,7 @@
 	<div id="navBar">
 	<ul>
 		<li class="headerTitle"><a href="{{site.rootDirectory}}/index.html">{{site.title}}</a></li>
-		{% foreach category in site.categories %% <li class="category"><a href="{{site.rootDirectory}}/{{category.category}}/index.html">{{category.category}} &gt;</a></li> %}
+		{% foreach category in site.categories %% {% if category.showInNavBar %% <li class="category"><a href="{{site.rootDirectory}}/{{category.category}}/index.html">{{category.category}} &gt;</a></li> %} %}
 	</ul>
 	</div> <!-- navBar -->
 	</div> <!-- header -->

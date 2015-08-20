@@ -4,7 +4,7 @@
 	"topics": "grimoire, manual"	
 }
 -----
-	<p>Grimoire is a minuscule static site generator written in Python. It focuses on generating content from simple data to be integrated in layouts. The root directory of a site should contain a <code>site.json</code> descriptor file and a <code>layouts/</code> directory containing all of the layouts to be used. Layouts can be any type of text files, including but not limited to HTML, CSS or SVG. The site descriptor file gives global variable and site categories to be loaded. It ressemble the following example :</p>
+	<p>Grimoire is a minuscule static site generator written in Python. It focuses on generating content from raw data and simple layouts. The root directory of a site should contain a <code>site.json</code> descriptor file and a <code>layouts/</code> directory having all of the layouts to be used. Layouts can be any type of text files, including but not limited to HTML, CSS or SVG. The site descriptor file gives global variable and site categories to be loaded. It is similar the following example :</p>
 
 {% call pygmentize json %%
 {
@@ -42,7 +42,7 @@
 	<li><code>directories</code> : List the directories in the category (true or false). The listing is recursive.</li>
 </ul>
 
-	<p>Grimoire will start by listing all the files in <code>layouts/</code> and then, all the files and directories (if enabled) in the categories (here <code>Posts/</code> and <code>Gallery/</code>). For each file found it will attempt to read it with the specified eader functions. Readers are located in the <code>Modules/</code> directory. Each contains a python function <code>def apply(filename):</code> which returns a tupple made of two elements, the first is a dictionnary of the data (key and value pairs) the other is the content of the resource. Both can be left empty if needed.</p>
+	<p>Grimoire will start by listing all the files in <code>layouts/</code>, then, all the files and directories (if enabled) in the categories (here <code>Posts/</code> and <code>Gallery/</code>). For each file found it will attempt to read it with the specified reader function. Readers are located in the <code>Modules/</code> directory of the Grimoire installation. Each contains a python function <code>def apply(filename):</code> which returns a tupple made of two elements, the first is a dictionnary of the data (key and value pairs) the other is the content of the resource itself. Both can be left empty if needed.</p>
 
 	<p>Each layout file can either be a raw text file or a text file with JSON header to declare variables separated from the text by a delimitation : <code>-----</code>. To generate HTML pages the header must contain one of the two following variable : <code>"generate" : "path/filename.html"</code> or <code>"foreach" : "var in site.variableList"</code>. The first will generate a single page and the second will generate one page per resource, each page will be saved to the same path as the resource with a standard HTML extension.</p>
 	
@@ -83,6 +83,8 @@ This is the index page.
 <tbody>
 	<tr><td><code>site</code></td>										<td>Main site variable.</td></tr>
 	<tr><td><code>site.site</code></td>									<td>Name of the site.</td></tr>
+	<tr><td><code>site.dirname</code></td>									<td>Local root directory.</td></tr>
+	<tr><td><code>side.outputDirname</code></td>								<td>Local output directory name.</td></tr>
 	<tr><td><code>site.rootDirectory</code></td>								<td>Root directory of the site on the server.</td></tr>
 	<tr><td><code>site.someVariable</code></td>								<td>Any variable <i>someVariable</i> defined in <code>site.json</code>.</td></tr>
 	<tr><td><code>site.layouts</code></td>									<td>All the listed layouts, by name.</td></tr>
@@ -118,7 +120,7 @@ This is the index page.
 	<tr><td><code>resource.outputDirname</code></td>	<td>Directory name for the output file.</td></tr>
 	<tr><td><code>resource.urlDirname</code></td>		<td>Directory url for the output file.</td></tr>
 	<tr><td><code>resource.outputFilename</code></td>	<td>Output filename.</td></tr>
-	<tr><td><code>resource.url</code></td>			<td>Url of the resource.</td></tr>
+	<tr><td><code>resource.url</code></td>			<td>Url of the page associated with resource.</td></tr>
 	<tr><td><code>resource.firstFilename</code></td>	<td>Filename of the first file in the current directory.</td></tr>
 	<tr><td><code>resource.firstFile</code></td>		<td>First file in the current directory.</td></tr>
 	<tr><td><code>resource.firstDirname</code></td>		<td>Directory name of the first directory in the current directory.</td></tr>

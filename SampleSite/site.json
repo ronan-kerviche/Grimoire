@@ -1,16 +1,24 @@
 {
 	"site": "GrimoireSampleSite",
-	"rootDirectory": "/GrimoireSampleSite",
+	"rootDirectory": "/GrimoireSampleSite/",
 	"categories":[
 	{
 		"category": "Posts",
 		"reader": "postReader",
 		"files": "true",
-		"directories": "false"
+		"directories": "false",
+		"showInNavBar": "true"
 	},
 	{
 		"category": "Gallery",
 		"reader": "imageReader",
+		"files": "true",
+		"directories": "true",
+		"showInNavBar": "true"
+	},
+	{
+		"category": "Resources",
+		"reader": "copyOver",
 		"files": "true",
 		"directories": "true"
 	}],

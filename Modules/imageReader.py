@@ -1,6 +1,6 @@
 import exifread
 
-def apply(filename):
+def apply(filename, site):
 	apply.printExif += 1
 	if apply.printExif==1:
 		print '    EXIF for %s :' % filename

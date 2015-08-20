@@ -2,7 +2,7 @@ import codecs
 import json
 import re
 
-def apply(filename):
+def apply(filename, site):
 	delimiter = u'-----'
 	fileData = codecs.open(filename, 'r', encoding='utf-8')
 	content = fileData.read()

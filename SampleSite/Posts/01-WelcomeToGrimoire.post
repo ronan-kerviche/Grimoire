@@ -21,8 +21,12 @@ void main(void)
 <p>And this is some inline Latex math generated with MathJAX JavaScript : $a^2+b^2=c^2$ and this is an equation :</p>
 $$\frac{\left|a-b\right|^2}{\left|a+b\right|^2}$$
 
-<p>It is also easy to link against known resources such as the following image : </p>
-<img src="{{site.categories.Gallery.data."Gallery/IMG_0700.JPG".urlDirname}}/thumb_{{site.categories.Gallery.data."Gallery/IMG_0700.JPG".basename}}" alt="Gallery/IMG_0700.JPG" style="display: block; margin-left: auto; margin-right: auto;">
+<p>It is also easy to link against known resources such as the following images : </p>
+<a href="{{site.categories.Gallery.data."Gallery/IMG_0700.JPG".url}}"><img src="{{site.categories.Gallery.data."Gallery/IMG_0700.JPG".urlDirname}}/thumb_{{site.categories.Gallery.data."Gallery/IMG_0700.JPG".basename}}" alt="Gallery/IMG_0700.JPG" style="display: block; margin-left: auto; margin-right: auto;"></a>
+
+<br>
+
+<img src="{{site.categories.Resources.data."Resources/logo.svg".urlRaw}}" alt="{{site.categories.Resources.data."Resources/logo.svg".name}}" style="display:block; margin-left: auto; margin-right: auto;">
 
 <p>Or to list resources :</p>
 <ul>
