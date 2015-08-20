@@ -121,6 +121,7 @@ This is the index page.
 	<tr><td><code>resource.urlDirname</code></td>		<td>Directory url for the output file.</td></tr>
 	<tr><td><code>resource.outputFilename</code></td>	<td>Output filename.</td></tr>
 	<tr><td><code>resource.url</code></td>			<td>Url of the page associated with resource.</td></tr>
+	<tr><td><code>resource.urlRaw</code></td>		<td>Url of the resource.</td></tr>
 	<tr><td><code>resource.firstFilename</code></td>	<td>Filename of the first file in the current directory.</td></tr>
 	<tr><td><code>resource.firstFile</code></td>		<td>First file in the current directory.</td></tr>
 	<tr><td><code>resource.firstDirname</code></td>		<td>Directory name of the first directory in the current directory.</td></tr>
