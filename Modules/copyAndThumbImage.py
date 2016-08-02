@@ -1,6 +1,6 @@
 import math
 from os import path, makedirs
-import Image
+from PIL import Image
 
 def apply(processor, args, string):
 	if len(args)<4:

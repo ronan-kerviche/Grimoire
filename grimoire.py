@@ -200,6 +200,7 @@ class MiniProcessor:
 	def __init__(self):
 		self.forceVariableReplace = False
 		self.applyFunctions = True
+		self.discardProcessing = False
 		self.matchData = {}
 		self.functionStart = '{%'
 		self.argumentSeparator = '%%'
@@ -207,13 +208,10 @@ class MiniProcessor:
 		self.variableStart = '{{'
 		self.variableEnd = '}}'
 		def regSafe(s): return s.replace('{', '\{').replace('}', '\}')
-		#self.extractIf = re.compile(ur'\{%\s*(if|ifnot)\s+(\w+(?:\.\w+)*)\s*%%')	
+		self.extractDiscard = re.compile(ur'%s\s*discard\s*' % (regSafe(self.functionStart)))
 		self.extractIf = re.compile(ur'%s\s*(if|ifnot)\s+(\w+(?:\.\w+)*)\s*%s' % (regSafe(self.functionStart), regSafe(self.argumentSeparator)))
-		#self.extractFor = re.compile(ur'\{%\s*(?:for)\s+(\w+)\s+(?:in)\s+(\w+(?:\.\w+)*)\s*%%')
 		self.extractForeach = re.compile(ur'%s\s*(?:foreach)\s+(\w+)\s+(?:in)\s+(\w+(?:\.\w+)*)\s*%s' % (regSafe(self.functionStart), regSafe(self.argumentSeparator)))
 		self.extractFunc = re.compile(ur'%s\s*(?:call)\s+.+\s*(?:%s|%s)'  % (regSafe(self.functionStart), regSafe(self.argumentSeparator), regSafe(self.functionEnd)))		
-		#self.extractVar = re.compile(ur'\{\{\s*(\w+\.)*\w+\s*\}\}')	
-		#self.extractVar = re.compile(ur'%s\s*(\w+\.)*\w+\s*%s' % (regSafe(self.variableStart), regSafe(self.variableEnd)))	
 		self.extractVar = re.compile(ur'%s\s*\w[\w\s\-\."\\/]*\s*%s' % (regSafe(self.variableStart), regSafe(self.variableEnd)))
 		self.currentDepth = 0
 		self.maxDepth = 16
@@ -292,6 +290,10 @@ class MiniProcessor:
 			return  (string[:start] + result + string[(end+2):], start+len(result)) # Do not reprocess the output.
 
 	def applyFunction(self, string, start, middle, end):
+		matchObj = self.extractDiscard.match(string, start, middle)
+		if matchObj!=None:
+			self.discardProcessing = True
+			return (u'', None)
 		matchObj = self.extractIf.match(string, start, middle)
 		if matchObj!=None:
 			return (self.processIf(string, start, middle, end, matchObj), start)
@@ -327,13 +329,19 @@ class MiniProcessor:
 			(start, middle, end) = self.findBlock(string, start)
 			while start!=None:
 				(string, nextStart) = self.applyFunction(string, start, middle, end)
+				if nextStart==None or self.discardProcessing:
+					break
 				(start, middle, end) = self.findBlock(string, nextStart)
 
 		# Replace remaining variables :
-		string = self.extractVar.sub(self.replaceValueFunction, string)
+		if not self.discardProcessing:
+			string = self.extractVar.sub(self.replaceValueFunction, string)
 		# Finish :
 		self.currentDepth -= 1
-		return string
+		if self.discardProcessing:
+			return u''
+		else:
+			return string
 
 # Layout :
 class Layout(ObjectModel):
@@ -393,10 +401,13 @@ class Page:
 		self.content = content
 
 	def write(self):
-		print 'Writing to %s ...' % self.outputFilename
-		dataFile = codecs.open(prepareFileWrite(self.outputFilename), 'w', encoding='utf-8')
-		dataFile.write(self.content)
-		dataFile.close()
+		if len(self.content.strip())>0:
+			print 'Writing to %s ...' % self.outputFilename
+			dataFile = codecs.open(prepareFileWrite(self.outputFilename), 'w', encoding='utf-8')
+			dataFile.write(self.content)
+			dataFile.close()
+		else:
+			print 'Skipping empty page %s ...' % self.outputFilename
 
 # Site :
 class Site(ObjectModel):
