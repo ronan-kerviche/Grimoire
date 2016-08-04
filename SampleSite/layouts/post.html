@@ -4,8 +4,8 @@
 	"addFooter": "True",
 	"useMathJAX": "True",
 	"pageTitle": "{% if post.title %% {{post.title}} %}",
-	"pageDescription" : "{{site.site}}, post,{% if post.topics %% {{post.topics}} %}",
-	"pageKeywords": "{% if post.topics %% {{post.topics}} %}"
+	"pageDescription": "{% if post.description %% {{post.description}} %}{% ifnot post.description %% {{post.title}} %}",
+ 	"pageKeywords": "post, {% if post.topics %% {{post.topics}} %}"
 }
 -----
 {{ site.layouts.mainPre.content }}

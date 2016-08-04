@@ -56,8 +56,9 @@ a:visited
 
 #navBar
 {
-	width:100%;
-	height: {{layout.headerHeight}};
+	width: 100%;
+	height: {{layout.headerHeight}};	
+	overflow: hidden;
 }
 
 #navBar ul li
@@ -135,7 +136,7 @@ a:visited
 
 #pageContentFixedHeight
 {
-	height: 100%;
+	height: calc(100% - {{site.layouts.mainStyleSheet.headerHeight}} - 1em);
 	margin: 0.5em 4em 0.5em 4em;
 }
 

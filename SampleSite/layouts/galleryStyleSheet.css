@@ -82,7 +82,7 @@
 
 #imageDiv
 {
-	height: 80%;
+	height: calc(100% - {{site.layouts.mainStyleSheet.headerHeight}} - 3.5em - 0.5em); /* Subtracting the margin-bottom and the margin from #pageContentFixedHeight, as well as an extra line for the description and 0.5em to leave some space at the bottom. */
 	text-align: center;
 	margin-bottom: 0.5em;
 	max-width: 100%;
@@ -133,6 +133,8 @@
 	display: inline-block;
 	background-color: {{layout.darkerGray}};
 	border-radius: 1em;
+	overflow: auto;
+	height: 6em;
 }
 
 #imageNavBar .nextImage

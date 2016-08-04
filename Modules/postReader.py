@@ -13,4 +13,8 @@ def apply(filename, site):
 	elif len(parts)==1:
 		return ({}, content)
 	else:
-		return (json.loads(parts[0]), delimiter.join(parts[1:]))
+		try:
+			return (json.loads(parts[0]), delimiter.join(parts[1:]))
+		except ValueError:
+			print u'Exception caught while reading JSON header in "%s"' % filename
+			raise

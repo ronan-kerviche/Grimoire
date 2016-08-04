@@ -20,7 +20,7 @@
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 #THE SOFTWARE.
 #
-# More information at https://github.com/ronan-kerviche/Grimoire
+# More information and documentation available at https://github.com/ronan-kerviche/Grimoire
 #
 
 import sys

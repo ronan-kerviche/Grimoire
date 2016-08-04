@@ -59,7 +59,7 @@ This is the index page.
 <!-- Some footer -->
 %}
 
-	<p>And for the each post :</p>
+	<p>And for each of the posts :</p>
 
 {% call pygmentize text %%
 {
