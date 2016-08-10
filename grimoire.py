@@ -404,7 +404,8 @@ class Page:
 		if len(self.content.strip())>0:
 			print 'Writing to %s ...' % self.outputFilename
 			dataFile = codecs.open(prepareFileWrite(self.outputFilename), 'w', encoding='utf-8')
-			dataFile.write(self.content)
+			cleanedContent = "\n".join([line for line in self.content.split('\n') if line.strip() != ''])
+			dataFile.write(cleanedContent)
 			dataFile.close()
 		else:
 			print 'Skipping empty page %s ...' % self.outputFilename
