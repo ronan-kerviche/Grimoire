@@ -36,8 +36,8 @@ def apply(processor, args, string):
 		if not path.exists(directory):
 			makedirs(directory)
 		# Resize and save :
-		imgW = img.resize(sizeImg)
-		imgW.save(args[3])
+		imgW = img.resize(sizeImg, Image.ANTIALIAS)
+		imgW.save(args[3], 'JPEG', quality=90)
 	else:
 		print u'  [Omitted]'
 	# If needs to generate a thumbnail :
@@ -48,8 +48,8 @@ def apply(processor, args, string):
 			directory = path.dirname(args[6])
 			if not path.exists(directory):
 				makedirs(directory)
-			img.thumbnail(sizeThumb)
-			img.save(args[6])
+			img.thumbnail(sizeThumb, Image.ANTIALIAS);
+			img.save(args[6], 'JPEG', quality=90)
 		else:
 			print u'  [Omitted]'
 	return ''
